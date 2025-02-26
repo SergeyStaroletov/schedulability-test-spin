@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <time.h>
 
 #include <ecl/ecl.h>
 #define DPP 0
@@ -92,6 +93,7 @@ AlgReturn run_verification(int n, int m, struct Task *Tasks) {
         printf("SPIN run for %d seconds!\n", realWaitSeconds);
 
         FILE *fout = fopen("pan.out", "r");
+        memset(buf, 0, sizeof(buf));
         fread(buf, sizeof(buf), 1, fout);
         fclose(fout);
         FILE *frez;
@@ -114,7 +116,7 @@ AlgReturn run_verification(int n, int m, struct Task *Tasks) {
         fclose(frez);
         return ret;
     }
-
+    return AlgReturn::unknown;
 }
 
 
@@ -299,6 +301,13 @@ int main(int argc, char *argv[])
                                strcpy(spin_ret_str, "unknown");
                            if (spin_ret == AlgReturn::schedulable)
                                strcpy(spin_ret_str, "schedulable");
+                           char genstr1[50];
+                           char genstr2[50];
+                           char genstr3[50];
+
+                           sprintf(genstr1, "cp gen.pml gen_%lu.pml", time(NULL));
+                           sprintf(genstr2, "cp pan.out pan_%lu.out", time(NULL));
+                           sprintf(genstr3, "cp NP-GFP.pml.trail NP-GFP_%lu.trail", time(NULL));
 
 
                            if (m == n - 1) {
@@ -308,36 +317,28 @@ int main(int argc, char *argv[])
                                    printf("\n\n***!!!!!!Wrong SPIN result for m=n-1: SPIN=%s/ALG2=%s\n***", spin_ret_str,
                                           infeasible_alg2? "infeasible": "unknown");
                                    ecl_print(taskset, ECL_T);
+                                   system(genstr1);
+                                   system(genstr2);
+                                   system(genstr3);
                                }
                            } else {
                                if (spin_ret == AlgReturn::schedulable && alg2_ret == AlgReturn::infeasible) {
                                    printf("\n\n***!!!!!!Wrong SPIN result for m<n: SPIN=%s/ALG2=%s\n***", spin_ret_str,
                                           infeasible_alg2? "infeasible": "unknown");
                                    ecl_print(taskset, ECL_T);
+                                   system(genstr1);
+                                   system(genstr2);
+                                   system(genstr3);
+
                                }
                            }
 
-
-                           if ((spin_ret == AlgReturn::infeasible || spin_ret == AlgReturn::unknown) && (infeasible_alg2)) {
-                               //printf("INFEASIBLE SPIN =  INFEASIBLE ALG2\n");
-                           }
-                           else if (!infeasible_alg2 && spin_ret == AlgReturn::unknown) {
-                               //printf("UNKNOWN SPIN =  UNKNOWN ALG2\n");
-                           }
-                           else {
-                               //printf("!!Wrong SPIN result Alg2: not INFEASIBLE or UNKNOWN!! SPIN=%s/ALG2=%s\n", spin_ret_str,
-                               // infeasible_alg2? "infeasible": "unknown");
-                           }
-                           if (spin_ret == AlgReturn::infeasible && !infeasible_alg2) {
-                               printf("\n\n***!!!!!!Wrong SPIN result Alg2: SPIN=%s/ALG2=%s\n***", spin_ret_str,
-                               infeasible_alg2? "infeasible": "unknown");
-                               ecl_print(taskset, ECL_T);
-
-
-                           }
-
                            if (spin_ret == AlgReturn::schedulable && (!shed_alg1)) {
-                               printf("!!Wrong SPIN result Alg1: not SCHEDULABLE!!\n");
+                               printf("\n\n***!!Wrong SPIN result Alg1: not SCHEDULABLE!!\n");
+                               ecl_print(taskset, ECL_T);
+                               system(genstr1);
+                               system(genstr2);
+                               system(genstr3);
                            }
                    }
 
@@ -345,8 +346,6 @@ int main(int argc, char *argv[])
                    free(Tasks);
 
                    //ecl_print(rez_alg2, ECL_T);
-
-
 
 
                 } else break;
