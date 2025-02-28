@@ -71,13 +71,13 @@ AlgReturn run_verification(int n, int m, struct Task *Tasks) {
         exit(1);
     } else {
         int status;
-        char buf[1024];
+        char cmd[100];
 
         printf("Waiting...\n");
         for (int w = 0; w < waitSeconds; w++) {
             sleep(1);
-            sprintf(buf, "ps %d | grep -q 'defunct'", pid);
-            int k = system(buf);
+            sprintf(cmd, "ps %d | grep -q 'defunct'", pid);
+            int k = system(cmd);
             if (k == 0) { // Check if the child is still running
                 realWaitSeconds = w;
                 break;
@@ -93,8 +93,12 @@ AlgReturn run_verification(int n, int m, struct Task *Tasks) {
         printf("SPIN run for %d seconds!\n", realWaitSeconds);
 
         FILE *fout = fopen("pan.out", "r");
-        memset(buf, 0, sizeof(buf));
-        fread(buf, sizeof(buf), 1, fout);
+        fseek(fout, 0, SEEK_END);
+        long sz = ftell(fout);
+        fseek(fout, 0, SEEK_SET);
+        char *buf = (char *)malloc(sz + 1);
+        memset(buf, 0, sz);
+        fread(buf, sz, 1, fout);
         fclose(fout);
         FILE *frez;
         AlgReturn ret = AlgReturn::unknown;
@@ -102,18 +106,19 @@ AlgReturn run_verification(int n, int m, struct Task *Tasks) {
             frez = fopen("infeasible.txt", "a");
             ret = AlgReturn::infeasible;
         } else
-            if (strstr(buf, "pan: elapsed time") != NULL) {
-                frez = fopen("ok.txt", "a");
-                ret = AlgReturn::schedulable;
-            } else {
+            if (strstr(buf, "error:") != NULL) {
                 frez = fopen("unknown.txt", "a");
                 ret = AlgReturn::unknown;
+            } else {             
+                frez = fopen("ok.txt", "a");
+                ret = AlgReturn::schedulable;
             }
         fprintf(frez, "M:%d N:%d ", m, n);
         for (int i = 0; i < n; i++)
             fprintf(frez, "(C:%d D:%d) ", Tasks[i].c, Tasks[i].d);
         fprintf(frez, "\n");
         fclose(frez);
+        free(buf);
         return ret;
     }
     return AlgReturn::unknown;
@@ -307,8 +312,12 @@ int main(int argc, char *argv[])
 
                            sprintf(genstr1, "cp gen.pml gen_%lu.pml", time(NULL));
                            sprintf(genstr2, "cp pan.out pan_%lu.out", time(NULL));
-                           sprintf(genstr3, "cp NP-GFP.pml.trail NP-GFP_%lu.trail", time(NULL));
-
+                           //sprintf(genstr3, "cp NP-GFP.pml.trail NP-GFP_%lu.trail", time(NULL));
+                           printf("result SPIN = %s ALG1 = %s ALG2 = %s\n",
+                                  spin_ret_str,
+                                  shed_alg1? "schedulable" : "infeasible",
+                                  infeasible_alg2? "infeasible": "unknown"
+                                  );
 
                            if (m == n - 1) {
                                if ((spin_ret == AlgReturn::schedulable && alg2_ret == AlgReturn::infeasible) ||
