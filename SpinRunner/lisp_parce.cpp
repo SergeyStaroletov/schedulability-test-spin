@@ -49,7 +49,7 @@ bool compile_spin() {
 }
 
 
-AlgReturn run_verification(int n, int m, struct Task *Tasks) {
+AlgReturn run_verification(int n, int m, struct Task *Tasks, int * runtime) {
 
     const char* executable = SHELL;
     //./pan -m100000000  -a
@@ -92,6 +92,8 @@ AlgReturn run_verification(int n, int m, struct Task *Tasks) {
 
         printf("SPIN run for %d seconds!\n", realWaitSeconds);
 
+        *runtime = realWaitSeconds;
+
         FILE *fout = fopen("pan.out", "r");
         fseek(fout, 0, SEEK_END);
         long sz = ftell(fout);
@@ -130,7 +132,10 @@ int main(int argc, char *argv[])
     system("rm infeasible.txt");
     system("rm unknown.txt");
     system("rm ok.txt");
+    system("rm output.csv");
 
+    FILE *csv = fopen("output.csv", "a");
+    fprintf(csv,"M;N;U;UC;SPIN;ALG1;ALG2;RunTime;\n");
 
     DIR *FD = opendir(DATASET_DIR);
     if (!FD) return 1;
@@ -299,7 +304,8 @@ int main(int argc, char *argv[])
                    {
                        if (compile_spin()) {
                            char spin_ret_str[50];
-                           AlgReturn spin_ret = run_verification(n, m, Tasks);
+                           int runtime = 0;
+                           AlgReturn spin_ret = run_verification(n, m, Tasks, &runtime);
                            if (spin_ret == AlgReturn::infeasible)
                                strcpy(spin_ret_str, "infeasible");
                            if (spin_ret == AlgReturn::unknown)
@@ -318,6 +324,14 @@ int main(int argc, char *argv[])
                                   shed_alg1? "schedulable" : "infeasible",
                                   infeasible_alg2? "infeasible": "unknown"
                                   );
+
+                           fprintf(csv, "%d;%d;%f;%f;%s;%s;%s;%d;\n", m, n, u, uc,
+                                   spin_ret_str,
+                                   shed_alg1? "schedulable" : "infeasible",
+                                   infeasible_alg2? "infeasible": "unknown",
+                                   runtime
+                                   );
+                           fflush(csv);
 
                            if (m == n - 1) {
                                if ((spin_ret == AlgReturn::schedulable && alg2_ret == AlgReturn::infeasible) ||
