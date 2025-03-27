@@ -145,8 +145,8 @@ System replace(System T, int k, Task t) {
     return newSystem;
 }
 
-void printSystem(System T) {
-    printf("{pwr = %d ", T.n_tasks);
+void printSystem(const char * label, System T) {
+    printf("%s = {pwr: %d ", label, T.n_tasks);
     int n = T.n_tasks;
     for (int i = 0; i < n; i++) {
         printf("(c:%d d:%d u:%f)", T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
@@ -161,7 +161,8 @@ Group newEmptyGroup() {
     return newG;
 }
 
-Group addSystemToGroup(System T, Group g) {
+Group addSystemToGroup(System T, Group g, int cpus) {
+    g.processors[g.n_sys] = cpus;
     g.systems[g.n_sys++] = T;
     return g;
 }
@@ -175,9 +176,9 @@ Group addGroupToGroup(Group g1, Group g2) {
 void printGroup(Group g) {
     printf("Set of %d systems = {", g.n_sys);
     for (int i = 0; i < g.n_sys; i++) {
-        printf(" System #%d=[\n ", i);
-        printSystem(g.systems[i]);
-        printf(" ]\n");
+        char buf[100];
+        sprintf(buf, "System #%d [CPUs = %d]", i, g.processors[i]);
+        printSystem(buf, g.systems[i]);
     }
     printf("}\n");
 }

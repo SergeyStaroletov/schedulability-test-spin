@@ -7,7 +7,7 @@
 
 #include "alg.h"
 #include "test12.h"
-#define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/datasets"
+#define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/dataset27mar"
 #define DPP 0
 
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
                     } while(true);
 
 
-                    Group G = MinBin_MC(sys, n, m);
+                    Group G = MinBin_MC(sys, m, true);
                     printGroup(G);
 
                 } else break;

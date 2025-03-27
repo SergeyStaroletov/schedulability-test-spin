@@ -23,8 +23,8 @@ struct System {
 
 struct Group {
     int n_sys;
-    int m_cpu;
     struct System systems[MAX_SYS];
+    int processors[MAX_SYS];
 };
 
 enum AlgReturn {
@@ -51,9 +51,9 @@ System addTasks(System T, System T1);
 System addTask(System T, Task t);
 System removeFirst(System T, int n);
 System replace(System T, int k, Task t);
-void printSystem(System T);
+void printSystem(const char * label, System T);
 Group newEmptyGroup();
-Group addSystemToGroup(System T, Group g);
+Group addSystemToGroup(System T, Group g, int cpus);
 Group addGroupToGroup(Group g1, Group g2);
 void printGroup(Group g);
 
