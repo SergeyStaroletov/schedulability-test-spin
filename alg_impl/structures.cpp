@@ -21,14 +21,41 @@ Task head(System T) {
 }
 
 
-int cmpByU(const void *a, const void *b) {
+int cmpByUUp(const void *a, const void *b) {
     Task *task1 = (Task *)a;
     Task *task2 = (Task *)b;
     return task2->u - task1->u;
 }
 
-System sort(System T) {
-    qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByU);
+int cmpByUDown(const void *a, const void *b) {
+    Task *task1 = (Task *)a;
+    Task *task2 = (Task *)b;
+    return task1->u - task2->u;
+}
+
+int cmpByDUp(const void *a, const void *b) {
+    Task *task1 = (Task *)a;
+    Task *task2 = (Task *)b;
+    return task2->d - task1->d;
+}
+
+int cmpByDDown(const void *a, const void *b) {
+    Task *task1 = (Task *)a;
+    Task *task2 = (Task *)b;
+    return task1->d - task2->d;
+}
+
+System sort(System T, Sorting byWhat, bool UpDown) {
+    if (byWhat == Sorting::byU && UpDown)
+        qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByUUp);
+    else if (byWhat == Sorting::byU && !UpDown)
+        qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByUDown);
+    else if (byWhat == Sorting::byD && UpDown)
+        qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByDUp);
+    else if (byWhat == Sorting::byD && !UpDown)
+        qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByDDown);
+
+
     return T;
 }
 

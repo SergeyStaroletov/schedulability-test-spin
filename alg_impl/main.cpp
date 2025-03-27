@@ -92,16 +92,7 @@ int main(int argc, char *argv[]) {
                         } else break;
                         tasks = ecl_cdr(tasks);
                     } while(true);
-                    f = fopen("gen.pml", "w");
-                    fprintf(f, "#define NumProc %d\n", m);
-                    fprintf(f, "#define NumTask %d\n", n);
-                    fprintf(f, "inline setup() {\n");
-                    for (int i = 0; i < n; i++) {
-                        fprintf(f, " C_i[%d] = %d\n", i, sys.tasks[i].c);
-                        fprintf(f, " D_i[%d] = %d\n", i, sys.tasks[i].d);
-                    }
-                    fprintf(f, "}\n");
-                    fclose(f);
+
 
                     Group G = set_of_syst_div_2(sys, n, m);
                     printGroup(G);

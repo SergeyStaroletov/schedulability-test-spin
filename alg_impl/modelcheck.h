@@ -3,7 +3,7 @@
 
 #include "structures.h"
 
-bool compile_spin();
+bool compile_spin(System T, int m);
 AlgReturn run_verification(int * runtime);
 
 #endif // MODELCHECK_H

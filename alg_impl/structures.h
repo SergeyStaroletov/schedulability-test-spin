@@ -23,6 +23,7 @@ struct System {
 
 struct Group {
     int n_sys;
+    int m_cpu;
     struct System systems[MAX_SYS];
 };
 
@@ -32,11 +33,15 @@ enum AlgReturn {
     unknown
 };
 
+enum Sorting {
+    byU,
+    byD
+};
 
 System newEmptySystem();
 bool empty(System T);
 Task head(System T);
-System sort(System T);
+System sort(System T, Sorting byWhat, bool UpDown);
 int pwr(System T);
 bool theSameTask(Task t1, Task t2);
 System first(System T, int n);

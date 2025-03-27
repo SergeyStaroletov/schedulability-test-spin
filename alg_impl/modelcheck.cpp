@@ -18,7 +18,20 @@
 #define MAX_WAIT_SEC 120
 
 
-bool compile_spin() {
+bool compile_spin(System T, int m) {
+
+    FILE * f = fopen("gen.pml", "w");
+    fprintf(f, "#define NumProc %d\n", m);
+    fprintf(f, "#define NumTask %d\n", T.n_tasks);
+    fprintf(f, "inline setup() {\n");
+    for (int i = 0; i < T.n_tasks; i++) {
+        fprintf(f, " C_i[%d] = %d\n", i, T.tasks[i].c);
+        fprintf(f, " D_i[%d] = %d\n", i, T.tasks[i].d);
+    }
+    fprintf(f, "}\n");
+    fclose(f);
+
+
     int r = system(SPIN_CMD);
     if (r != 0) {
         printf("error exec spin -a!\n");
