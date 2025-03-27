@@ -5,7 +5,7 @@
 std::string printSystemToLisp(System T) {
     char buf[100];
     std::string result;
-    sprintf(buf, "(make-taskset :M %d :N %d :U %f :UC %f :tasks (list ", 0, T.n_tasks, 0, 0);
+    sprintf(buf, "(make-taskset :M %d :N %d :U 0 :UC 0 :tasks (list ", 0, T.n_tasks);//, 0, 0);
     result = std::string(buf);
 
     for (int i = 0; i < T.n_tasks; i++) {
@@ -13,8 +13,8 @@ std::string printSystemToLisp(System T) {
         result += std::string(buf);
     }
 
-    result += std::string("))");
-
+    result += std::string(") )");
+    return result;
 }
 
 int prepare(int argc, char *argv[]) {
@@ -92,13 +92,18 @@ int prepare(int argc, char *argv[]) {
         "  (return-from Alg2 'unknown))"
         ));
 
-
-
     return 0;
 }
 
-void test1(System T) {
+AlgReturn do_test1(System T) {
     cl_object rez_alg1 = cl_funcall(2, c_string_to_object("Alg1"),
-                                    c_string_to_object(printSystemToLisp(T).c_str()));
+                                    cl_eval(c_string_to_object(printSystemToLisp(T).c_str())));
+
+    if (!strcmp((const char *)rez_alg1->symbol.name->string.self, "SCHEDULABLE"))
+        return AlgReturn::schedulable;
+    if (!strcmp((const char *)rez_alg1->symbol.name->string.self, "INFEASIBLE"))
+        return AlgReturn::infeasible;
+
+    return AlgReturn::unknown;
 
 }

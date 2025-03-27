@@ -1,0 +1,156 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <math.h>
+
+#include "structures.h"
+
+
+System newEmptySystem() {
+    System newSystem;
+    newSystem.n_tasks = 0;
+    return newSystem;
+}
+
+bool empty(System T) {
+    return T.n_tasks == 0;
+}
+
+Task head(System T) {
+    return T.tasks[0];
+}
+
+
+int cmpByU(const void *a, const void *b) {
+    Task *task1 = (Task *)a;
+    Task *task2 = (Task *)b;
+    return task2->u - task1->u;
+}
+
+System sort(System T) {
+    qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByU);
+    return T;
+}
+
+int pwr(System T) {
+    return T.n_tasks;
+}
+
+bool theSameTask(Task t1, Task t2) {
+    return (t1.c == t2.c) && (t1.d == t2.d);
+}
+
+System first(System T, int n) {
+    System newSystem = newEmptySystem();
+    if (n > T.n_tasks) n = T.n_tasks; //?
+    newSystem.n_tasks = n;
+    for (int i = 0; i < n; i++) {
+        newSystem.tasks[i] = T.tasks[i];
+    }
+    return newSystem;
+}
+
+System removeTasks(System T, System T1) {
+    int count = 0;
+    System newSystem = newEmptySystem();
+    for (int i = 0; i < T.n_tasks; i++) {
+        bool found = false;
+        for (int j = 0; j < T1.n_tasks; j++)
+            if (theSameTask(T.tasks[i], T1.tasks[j])) {
+                found = true;
+                break;
+            }
+        if (!found) newSystem.tasks[count++] = T.tasks[i];
+    }
+    newSystem.n_tasks = count;
+    return newSystem;
+}
+
+System removeTask(System T, Task t) {
+    System T2 = newEmptySystem();
+    T2.tasks[0] = t;
+    T2.n_tasks = 1;
+    return removeTasks(T, T2);
+}
+
+System addTasks(System T, System T1) {
+    System newSystem = newEmptySystem();
+    int count = 0;
+    //добавить все из T
+    for (int i = 0; i < T.n_tasks; i++)
+        newSystem.tasks[count++] = T.tasks[i];
+    //добавить все из T2, которых нет в T1
+    for (int i = 0; i < T1.n_tasks; i++) {
+        bool found = false;
+        for (int j = 0; j < T.n_tasks; j++)
+            if (theSameTask(T1.tasks[i], T.tasks[j])) {
+                found = true;
+                break;
+            }
+        if (!found) newSystem.tasks[count++] = T1.tasks[i];
+    }
+    newSystem.n_tasks = count;
+    return newSystem;
+}
+
+System addTask(System T, Task t) {
+    System T2 = newEmptySystem();
+    T2.tasks[0] = t;
+    T2.n_tasks = 1;
+    return addTasks(T, T2);
+}
+
+System removeFirst(System T, int n) {
+    System newSystem = newEmptySystem();
+    int count = 0;
+    for (int i = 0; i < T.n_tasks - n; i++)
+        if (i + n <= T.n_tasks) {
+            newSystem.tasks[i] = T.tasks[i + n];
+            count++;
+        }
+    newSystem.n_tasks = count;
+    return newSystem;
+}
+
+System replace(System T, int k, Task t) {
+    System newSystem = T;
+    newSystem.tasks[k] = t;
+    return newSystem;
+}
+
+void printSystem(System T) {
+    printf("{pwr = %d ", T.n_tasks);
+    int n = T.n_tasks;
+    for (int i = 0; i < n; i++) {
+        printf("(c:%d d:%d u:%f)", T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
+        if (i < n - 1) printf(", ");
+    }
+    printf("}\n");
+}
+
+Group newEmptyGroup() {
+    Group newG;
+    newG.n_sys = 0;
+    return newG;
+}
+
+Group addSystemToGroup(System T, Group g) {
+    g.systems[g.n_sys++] = T;
+    return g;
+}
+
+Group addGroupToGroup(Group g1, Group g2) {
+    Group newG = g1;
+    for (int i = 0; i < g2.n_sys; i++) newG.systems[newG.n_sys++] = g2.systems[i];
+    return newG;
+}
+
+void printGroup(Group g) {
+    printf("Set of %d systems = {", g.n_sys);
+    for (int i = 0; i < g.n_sys; i++) {
+        printf(" System #%d=[\n ", i);
+        printSystem(g.systems[i]);
+        printf(" ]\n");
+    }
+    printf("}\n");
+}

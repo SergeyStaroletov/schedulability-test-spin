@@ -8,6 +8,9 @@ CONFIG += c++17 cmdline
 
 SOURCES += \
     alg.cpp \
+    main.cpp \
+    modelcheck.cpp \
+    structures.cpp \
     test12.cpp
 
 
@@ -26,4 +29,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    structures.h
+    alg.h \
+    modelcheck.h \
+    structures.h \
+    test12.h

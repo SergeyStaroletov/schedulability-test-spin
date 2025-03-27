@@ -1,167 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <math.h>
 
 #include "structures.h"
+#include "test12.h"
+#include "modelcheck.h"
 
-System newEmptySystem() {
-    System newSystem;
-    newSystem.n_tasks = 0;
-    return newSystem;
-}
+#define DEBUG 1
 
-bool empty(System T) {
-    return T.n_tasks == 0;
-}
-
-Task head(System T) {
-    return T.tasks[0];
-}
-
-
-int cmpByU(const void *a, const void *b) {
-    Task *task1 = (Task *)a;
-    Task *task2 = (Task *)b;
-    return task2->u - task1->u;
-}
-
-System sort(System T) {
-    qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByU);
-    return T;
-}
-
-int pwr(System T) {
-    return T.n_tasks;
-}
-
-bool theSameTask(Task t1, Task t2) {
-    return (t1.c == t2.c) && (t1.d == t2.d);
-}
-
-System first(System T, int n) {
-    System newSystem = newEmptySystem();
-    if (n > T.n_tasks) n = T.n_tasks; //?
-    newSystem.n_tasks = n;
-    for (int i = 0; i < n; i++) {
-        newSystem.tasks[i] = T.tasks[i];
-    }
-    return newSystem;
-}
-
-System removeTasks(System T, System T1) {
-    int count = 0;
-    System newSystem = newEmptySystem();
-    for (int i = 0; i < T.n_tasks; i++) {
-        bool found = false;
-        for (int j = 0; j < T1.n_tasks; j++)
-            if (theSameTask(T.tasks[i], T1.tasks[j])) {
-                found = true;
-                break;
-            }
-        if (!found) newSystem.tasks[count++] = T.tasks[i];
-    }
-    newSystem.n_tasks = count;
-    return newSystem;
-}
-
-System removeTask(System T, Task t) {
-    System T2 = newEmptySystem();
-    T2.tasks[0] = t;
-    T2.n_tasks = 1;
-    return removeTasks(T, T2);
-}
-
-System addTasks(System T, System T1) {
-    System newSystem = newEmptySystem();
-    int count = 0;
-    //добавить все из T
-    for (int i = 0; i < T.n_tasks; i++)
-        newSystem.tasks[count++] = T.tasks[i];
-    //добавить все из T2, которых нет в T1
-    for (int i = 0; i < T1.n_tasks; i++) {
-        bool found = false;
-        for (int j = 0; j < T.n_tasks; j++)
-            if (theSameTask(T1.tasks[i], T.tasks[j])) {
-                found = true;
-                break;
-            }
-        if (!found) newSystem.tasks[count++] = T1.tasks[i];
-    }
-    newSystem.n_tasks = count;
-    return newSystem;
-}
-
-System addTask(System T, Task t) {
-    System T2 = newEmptySystem();
-    T2.tasks[0] = t;
-    T2.n_tasks = 1;
-    return addTasks(T, T2);
-}
-
-System removeFirst(System T, int n) {
-    System newSystem = newEmptySystem();
-    int count = 0;
-    for (int i = 0; i < T.n_tasks - n; i++)
-        if (i + n <= T.n_tasks) {
-            newSystem.tasks[i] = T.tasks[i + n];
-            count++;
-        }
-    newSystem.n_tasks = count;
-    return newSystem;
-}
-
-System replace(System T, int k, Task t) {
-    System newSystem = T;
-    newSystem.tasks[k] = t;
-    return newSystem;
-}
-
-void printSystem(System T) {
-    printf("{pwr = %d ", T.n_tasks);
-    int n = T.n_tasks;
-    for (int i = 0; i < n; i++) {
-        printf("(c:%d d:%d u:%d)", T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
-        if (i < n - 1) printf(", ");
-    }
-    printf("}\n");
-}
-
-Group newEmptyGroup() {
-    Group newG;
-    newG.n_sys = 0;
-    return newG;
-}
-
-Group addSystemToGroup(System T, Group g) {
-    g.systems[g.n_sys++] = T;
-    return g;
-}
-
-Group addGroupToGroup(Group g1, Group g2) {
-    Group newG = g1;
-    for (int i = 0; i < g2.n_sys; i++) newG.systems[newG.n_sys++] = g2.systems[i];
-    return newG;
-}
-
-void printGroup(Group g) {
-    printf("Set of %d systems = {", g.n_sys);
-    for (int i = 0; i < g.n_sys; i++) {
-        printf(" System #%d=[\n ", i);
-        printSystem(g.systems[i]);
-        printf(" ]\n");
-    }
-    printf("}\n");
+void debug(char *s) {
+    #ifdef DEBUG
+    printf("[debug] %s\n", s);
+   // va_list args;
+   // va_start(args, s);
+   // vprintf(s, args);
+   // va_end(args);
+    #endif
 }
 
 
 bool Test_1(System T) {
-    return true;
+    return do_test1(T) == AlgReturn::schedulable;
 }
 
 // Подбор задач с меньшей утилизацией, если нет планируемости -- Test1
 // !!!подменить на версию с мс
 int sel_n_test (System T_1, System T_2, System T, int m_1, int k) {
     while (!Test_1(T_1) && k > 0 ) {
+        debug("sel_n_test while");
         if (empty(T_2)) {// заменили k-ю с конца задачу в Т_1 на самую лёгкую из T_2
             T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k); // переходим к следующим задачам, которые после k-й задачи в исходном Т (без самой лёгкой)
             //выкинуть все задачи из T какие есть в T1, количество уменьшается ровно как надо
@@ -179,7 +46,7 @@ bool model_checking(System T, int n, int m) {
 }
 
 
-Group model_checking_ap (System T, int n, int m) { // возвращает разбиение на подсистемы (N, M) c M<N
+Group model_checking_ap(System T, int n, int m) { // возвращает разбиение на подсистемы (N, M) c M<N
     if (n > m * MC_MAX) return newEmptyGroup(); // не умеем проверять такое
     T = sort(T); // сортировка по утилизации
     Group G_1 = newEmptyGroup();
@@ -224,19 +91,33 @@ Group model_checking_ap (System T, int n, int m) { // возвращает ра�
 
 
 Group set_of_syst_div_2(System T, int n, int m) { // возвращает разбиение на подсистемы (x, x-1) и (N, M) c M<N
+    debug("sorting...");
     T = sort(T); 	// сортировка по утилизации
+    debug("sorting ok");
+
     Group G_1 = newEmptyGroup();
     int m_t = 0; 		// сколько процессоров уже задействовано
     int m_1 = m;		// число процессоров для T_1
-    while ((m_1 > 1) || (pwr(T) < m_1 + 1)) {
+    while ((m_1 > 1) && (pwr(T) > m_1 + 1)) {
+        debug("while");
+        printf("m1=%d\n", m_1);
         int k = m_1 + 1;
+        printf("k=%d\n", k);
         System T_1 = first(T, k);
+        debug("first");
+        printSystem(T_1);
         System T_2 = removeTasks(T, T_1); //T_2 = T - T_1; //по количеству хвост без T1
+        debug("remove");
+        printSystem(T_2);
+        debug("sel_n_test");
         k = sel_n_test(T_1, T_2, T, m_1, k);
+        printf("k=%d\n", k);
         if (k != 0) { // получили ещё одну планируемую подсистему
             m_t = m_t + m_1;
             G_1 = addSystemToGroup(T_1, G_1); //G_1 = G_1 + {T_1}; //добавить множество систем
             T = removeTasks(T, T_1); //T = T - T_1;
+            debug("removeTasks");
+            printSystem(T);
         } else {
             m_1 = floor(m_1 / 2);
         }
@@ -246,8 +127,6 @@ Group set_of_syst_div_2(System T, int n, int m) { // возвращает раз
     //if (emptyG(G_2)) return newEmptySystem();
     return addGroupToGroup(G_1, G_2); //G_1 + G_2
 }
-
-
 
 
 void tests() {
@@ -290,7 +169,7 @@ void tests() {
 }
 
 
-int main(int argc, char *argv[])
-{
-    tests();
-}
+//int main(int argc, char *argv[])
+//{
+//    tests();
+//}
