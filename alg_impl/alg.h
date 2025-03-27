@@ -3,6 +3,6 @@
 #include "structures.h"
 
 bool model_checking(System T, int m);
-Group set_of_syst_div_2(System T, int n, int m);
+Group MinBin_MC (System T, int m, bool UpDn);
 
 #endif // ALG_H

@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
                     } while(true);
 
 
-                    Group G = set_of_syst_div_2(sys, n, m);
+                    Group G = MinBin_MC(sys, n, m);
                     printGroup(G);
 
                 } else break;
