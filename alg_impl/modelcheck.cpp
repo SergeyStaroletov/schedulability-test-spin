@@ -20,25 +20,25 @@
 
 bool compile_spin(System T, int m) {
 
-    FILE * f = fopen("gen.pml", "w");
-    fprintf(f, "#define NumProc %d\n", m);
-    fprintf(f, "#define NumTask %d\n", T.n_tasks);
-    fprintf(f, "inline setup() {\n");
+    FILE * file_pml = fopen("gen.pml", "w");
+    fprintf(file_pml, "#define NumProc %d\n", m);
+    fprintf(file_pml, "#define NumTask %d\n", T.n_tasks);
+    fprintf(file_pml, "inline setup() {\n");
     for (int i = 0; i < T.n_tasks; i++) {
-        fprintf(f, " C_i[%d] = %d\n", i, T.tasks[i].c);
-        fprintf(f, " D_i[%d] = %d\n", i, T.tasks[i].d);
+        fprintf(file_pml, " C_i[%d] = %d\n", i, T.tasks[i].c);
+        fprintf(file_pml, " D_i[%d] = %d\n", i, T.tasks[i].d);
     }
-    fprintf(f, "}\n");
-    fclose(f);
+    fprintf(file_pml, "}\n");
+    fclose(file_pml);
 
 
-    int r = system(SPIN_CMD);
-    if (r != 0) {
+    int rez_exec = system(SPIN_CMD);
+    if (rez_exec != 0) {
         printf("error exec spin -a!\n");
         return false;
     }
-    r = system(SPIN_CMD_COMPILE);
-    if (r != 0) {
+    rez_exec = system(SPIN_CMD_COMPILE);
+    if (rez_exec != 0) {
         printf("error exec gcc pan!\n");
         return false;
     }
@@ -89,14 +89,14 @@ AlgReturn run_verification(int * runtime) {
 
         *runtime = realWaitSeconds;
 
-        FILE *fout = fopen("pan.out", "r");
-        fseek(fout, 0, SEEK_END);
-        long sz = ftell(fout);
-        fseek(fout, 0, SEEK_SET);
+        FILE *file_pan_res = fopen("pan.out", "r");
+        fseek(file_pan_res, 0, SEEK_END);
+        long sz = ftell(file_pan_res);
+        fseek(file_pan_res, 0, SEEK_SET);
         char *buf = (char *)malloc(sz + 1);
         memset(buf, 0, sz);
-        fread(buf, sz, 1, fout);
-        fclose(fout);
+        fread(buf, sz, 1, file_pan_res);
+        fclose(file_pan_res);
         AlgReturn ret = AlgReturn::unknown;
         if (strstr(buf, "assertion violated") != NULL) {
             ret = AlgReturn::infeasible;
