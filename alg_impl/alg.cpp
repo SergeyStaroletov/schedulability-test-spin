@@ -49,14 +49,17 @@ bool tester(System T, int m) {
 bool select(System T_1, System T, int m_1, int k) {
     debug("select");
     bool safe = false;
+    debug("tester");
     safe = tester(T_1, m_1);
+    debug("done");
     System T_2 = removeTasks(T, T_1);
     while (!safe && k > 0) {
+        debug("while");
         if (empty(T_2)) {
             T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k);
             k = k -1;
         }
-        replace(T_1, k, head(T_2));
+        T_1 = replace(T_1, k, head(T_2));
         safe = tester(T_1, m_1);
     }
     return safe;
