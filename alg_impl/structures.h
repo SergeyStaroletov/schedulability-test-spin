@@ -38,6 +38,14 @@ enum Sorting {
     byD
 };
 
+enum Alg {
+    Alg_MaxBin_T,
+    Alg_MidBin_T,
+    Alg_MidBin_ET,
+    Alg_MinBin_ET
+};
+
+
 System newEmptySystem();
 bool empty(System T);
 Task head(System T);

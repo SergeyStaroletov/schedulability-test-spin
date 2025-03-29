@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
                     } while(true);
 
 
-                    Group G = MidBin_ET(sys, m, true);
+                    Group G = Assignment(sys, m);
                     printGroup(G);
 
                 } else break;

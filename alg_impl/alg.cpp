@@ -60,6 +60,63 @@ bool select(System T_1, System T, int m_1, int k) {
     return safe;
 }
 
+
+
+
+Group MaxBin_T(System T, int m, int UpDn, bool Dec) {
+    T = sort(T, Sorting::byU, UpDn);
+    Group G_A = newEmptyGroup();
+    int m_1 = m - 1;
+    while (m_1 > 1 && pwr(T) >= m_1 + 1 && m > m_1) {
+        System T_1 = first(T, m_1 + 1);
+        bool done = select(T_1, T, m_1, m_1 + 1);
+        if (done) {
+            G_A = addSystemToGroup(T_1, G_A, m_1);
+            T = removeTasks(T, T_1);
+            m = m - m_1;
+        } else {
+            if (Dec)
+                m_1 = ceil(m_1 / 2);
+            else
+                m_1 = m_1 - 1;
+        }
+    }
+    if (pwr(T) <= m)
+        return addSystemToGroup(T, G_A, m);
+    Group G_E = ExactTestA(T, m);
+    if (G_E.n_sys == 0) return newEmptyGroup();
+    return addGroupToGroup(G_A, G_E);
+}
+
+
+Group MidBin_T(System T, int m, bool UpDn) {
+    T = sort(T, Sorting::byU, UpDn);
+    Group G_A = newEmptyGroup();
+    int size_c = ceil(sqrt(m));
+    while (m > 1 && pwr(T) > 0) {
+        double m_1 = size_c;
+        if (pwr(T) <= m_1) return addSystemToGroup(T, G_A, m_1);
+        bool done = false;
+        System T_1;
+        while (!done && m_1 > 0) {
+            T_1 = first(T, m_1 + 1);
+            done = select(T_1, T, m_1, m_1 + 1);
+            m_1 = m_1 - 1;
+        }
+        if (done) {
+            m = m - m_1 - 1;
+            G_A = addSystemToGroup(T_1, G_A, m_1);
+            T = removeTasks(T, T_1);
+        } else break;
+    }
+    if (pwr(T) == 0) return G_A;
+    if (pwr(T) <= m) return addSystemToGroup(T, G_A, m);
+    Group G_E = ExactTestA(T, m);
+    if (G_E.n_sys == 0) return newEmptyGroup();
+    return addGroupToGroup(G_A, G_E);
+}
+
+
 Group MidBin_ET(System T, int m, bool UpDn) {
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
@@ -91,6 +148,63 @@ Group MidBin_ET(System T, int m, bool UpDn) {
         }
     }
     return G_E;
+}
+
+Group MinBin_ET(System T, int m, bool UpDn) {
+    int MAX = MC_MAX;
+    T = sort(T, Sorting::byU, UpDn);
+    Group G_E = newEmptyGroup();
+    while (m > 0 && pwr(T) > 0) {
+        int m_1 = 1;
+        bool done = false;
+        if (pwr(T) < MAX) MAX = pwr(T);
+        System T_1;
+        while (!done && m_1 < MAX && m_1 <= m) {
+            T_1 = first(T, MAX);
+            done = select(T_1, T, m_1, MAX);
+            m_1 = m_1 + 1;
+        }
+        if (!done) return newEmptyGroup();
+        G_E = addSystemToGroup(T_1, G_E, m_1);
+        T = removeTasks(T, T_1);
+        m = m - m_1 + 1;
+    }
+    return G_E;
+}
+
+Group Assignment(System T, int m) {
+    Group G = newEmptyGroup();
+
+}
+
+
+Group RunA(System T, int m, Alg A, bool UpDn) {
+    Group G = newEmptyGroup();
+    if (A == Alg_MaxBin_T) G = MaxBin_T(T, m, UpDn, true);
+    if (G.n_sys != 0) return G;
+    if (A == Alg_MaxBin_T) G = MaxBin_T(T, m, UpDn, false);
+    if (A == Alg_MidBin_T) G = MidBin_T(T, m, UpDn);
+    if (A == Alg_MidBin_ET) G = MidBin_ET(T, m, UpDn);
+    if (A == Alg_MinBin_ET) G = MinBin_ET(T, m, UpDn);
+    return G;
+}
+
+Group Choose_UpDn(System T, int m, Alg A) {
+    Group G = newEmptyGroup();
+    G = RunA(T, m, A, true);
+    if (G.n_sys != 0) return G;
+    G = RunA(T, m, A, false);
+    return G;
+}
+
+Group ExactTestA(System T, int m) {
+    Group G_E = MidBin_ET(T, m, true);
+    if (G_E.n_sys != 0) return G_E;
+    G_E = MidBin_ET(T, m, false);
+    if (G_E.n_sys != 0) return G_E;
+    G_E = MinBin_ET(T, m, true);
+    if (G_E.n_sys != 0) return G_E;
+    G_E = MinBin_ET(T, m, false);
 }
 
 
