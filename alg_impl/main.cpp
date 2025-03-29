@@ -95,7 +95,12 @@ int main(int argc, char *argv[]) {
 
 
                     Group G = Assignment(sys, m);
-                    printGroup(G);
+                    if (G.n_sys == 0) {
+                        printf("ASSIGNMENT FAILED\n");
+                    } else {
+                        printf("ASSIGNMENT OK |G| = %d\n", G.n_sys);
+                        printGroup(G);
+                    }
 
                 } else break;
                 result = ecl_cdr(result);
