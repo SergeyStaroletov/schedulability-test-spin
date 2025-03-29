@@ -7,7 +7,7 @@
 
 #include "alg.h"
 #include "test12.h"
-#define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/dataset_small_u"
+#define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/dataset_n50"
 #define DPP 0
 
 
@@ -58,9 +58,10 @@ int main(int argc, char *argv[]) {
 
                     int m = ecl_fixnum(taskset->instance.slots[0]);
                     int n = ecl_fixnum(taskset->instance.slots[1]);
-                    if (n > 40) {
-                        n = 20;
-                    }
+                   // if (n > 49) {
+                   //     n = 20;
+                   //     if (m > 20) m-= 20;
+                    //}
                     float u = ecl_single_float(taskset->instance.slots[2]);
                     if (u > 1) {
                         printf("Wrong utilization u = %f!\n", u);
@@ -93,6 +94,7 @@ int main(int argc, char *argv[]) {
                             sys.tasks[i].c = c;
                             sys.tasks[i].d = d;
                             sys.tasks[i].u = 1.0 * c / d;
+                            sys.tasks[i].p = i;
                             i++;
                         } else break;
                         tasks = ecl_cdr(tasks);

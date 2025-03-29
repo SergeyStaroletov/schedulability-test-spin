@@ -22,6 +22,7 @@ void debug(char *s) {
 
 
 bool Test_1(System T) {
+    sort(T, Sorting::byP, true);
     return do_test1(T) == AlgReturn::schedulable;
 }
 
@@ -78,7 +79,7 @@ Group MaxBin_T(System T, int m, int UpDn, bool Dec) {
             m = m - m_1;
         } else {
             if (Dec)
-                m_1 = ceil(m_1 / 2);
+                m_1 = floor(m_1 / 2);
             else
                 m_1 = m_1 - 1;
         }
@@ -224,6 +225,7 @@ Group ExactTestA(System T, int m) {
 
 
 bool ModelChecking(System T, int m) {
+    sort(T, Sorting::byP, true);
     int runtime = 0;
     if (compile_spin(T, m)) {
         debug("running verification...");

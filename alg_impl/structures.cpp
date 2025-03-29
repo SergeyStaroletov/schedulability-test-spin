@@ -45,6 +45,12 @@ int cmpByDDown(const void *a, const void *b) {
     return task1->d - task2->d;
 }
 
+int cmpByP(const void *a, const void *b) {
+    Task *task1 = (Task *)a;
+    Task *task2 = (Task *)b;
+    return task1->p - task2->p;
+}
+
 System sort(System T, Sorting byWhat, bool UpDown) {
     if (byWhat == Sorting::byU && UpDown)
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByUUp);
@@ -54,7 +60,8 @@ System sort(System T, Sorting byWhat, bool UpDown) {
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByDUp);
     else if (byWhat == Sorting::byD && !UpDown)
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByDDown);
-
+    else if (byWhat == Sorting::byP)
+        qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByP);
 
     return T;
 }
@@ -64,7 +71,7 @@ int pwr(System T) {
 }
 
 bool theSameTask(Task t1, Task t2) {
-    return (t1.c == t2.c) && (t1.d == t2.d);
+    return (t1.c == t2.c) && (t1.d == t2.d) && (t1.p == t2.p);
 }
 
 System first(System T, int n) {

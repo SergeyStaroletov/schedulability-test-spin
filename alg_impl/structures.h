@@ -13,6 +13,7 @@ struct Task {
     int c;
     int d;
     float u;
+    int p;
 };
 
 struct System {
@@ -35,7 +36,8 @@ enum AlgReturn {
 
 enum Sorting {
     byU,
-    byD
+    byD,
+    byP
 };
 
 enum Alg {
