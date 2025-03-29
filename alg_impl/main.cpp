@@ -17,6 +17,8 @@ int main(int argc, char *argv[]) {
     if (!FD) return 1;
     struct dirent* in_file;
     char fname[255];
+    FILE *csv = fopen("assign.csv", "w");
+    fprintf(csv, "test1;test2;assign;system\n");
 
 
     while ((in_file = readdir(FD))) {
@@ -93,14 +95,26 @@ int main(int argc, char *argv[]) {
                         tasks = ecl_cdr(tasks);
                     } while(true);
 
+                    char buf_rez[50];
+                    char buf_test1[50];
+                    char buf_test2[50];
+                    char buf_sys[2000];
+                    AlgReturn2Str(do_test1(sys), buf_test1);
+                    AlgReturn2Str(do_test2(sys), buf_test1);
+                    printSystemToBuf(sys, buf_sys);
 
                     Group G = Assignment(sys, m);
                     if (G.n_sys == 0) {
                         printf("ASSIGNMENT FAILED\n");
+                        strcpy(buf_rez, "failed");
                     } else {
-                        printf("ASSIGNMENT OK |G| = %d\n", G.n_sys);
+                        printf("ASSIGNMENT OK |G| = %d", G.n_sys);
+                        sprintf(buf_rez, "OK %d", G.n_sys);
                         printGroup(G);
                     }
+
+                    fprintf(csv, "%s;%s;%s;\"%s\"\n", buf_test1, buf_test2, buf_rez, buf_sys);
+                    fflush(csv);
 
                 } else break;
                 result = ecl_cdr(result);
