@@ -4,7 +4,7 @@
 
 bool ModelChecking(System T, int m);
 
-Group MaxBin_T(System T, int m, int UpDn, bool Dec); //alg1
+Group MaxBin_T(System T, int m, bool UpDn, bool Dec); //alg1
 Group MidBin_T(System T, int m, bool UpDn); //alg2
 Group MidBin_ET(System T, int m, bool UpDn); //alg3
 Group MinBin_ET(System T, int m, bool UpDn); //alg4

@@ -128,17 +128,5 @@ void AlgReturn2Str(AlgReturn r, char *buf) {
     strcpy(buf, "?");
 }
 
-void printSystemToBuf(System T, int m, char *buf) {
-    std::string result;
-    sprintf(buf, "[System :M %d :N %d [", 0, T.n_tasks);//, 0, 0);
-    result = std::string(buf);
 
-    for (int i = 0; i < T.n_tasks; i++) {
-        sprintf(buf, "(task :C %d :D %d :T %d) ", T.tasks[i].c, T.tasks[i].d, T.tasks[i].d);
-        result += std::string(buf);
-    }
-
-    result += std::string(")]");
-    strcpy(buf, result.c_str());
-}
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
@@ -156,8 +157,8 @@ void printSystem(const char * label, System T) {
     printf("%s = {pwr: %d ", label, T.n_tasks);
     int n = T.n_tasks;
     for (int i = 0; i < n; i++) {
-        printf("(c:%d d:%d u:%f)", T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
-        if (i < n - 1) printf(", ");
+        printf("  (c:%d d:%d u:%f)", T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
+        if (i < n - 1) printf(", \n");
     }
     printf("}\n");
 }
@@ -176,7 +177,10 @@ Group addSystemToGroup(System T, Group g, int cpus) {
 
 Group addGroupToGroup(Group g1, Group g2) {
     Group newG = g1;
-    for (int i = 0; i < g2.n_sys; i++) newG.systems[newG.n_sys++] = g2.systems[i];
+    for (int i = 0; i < g2.n_sys; i++) {
+        newG.processors[newG.n_sys] = g2.processors[i];
+        newG.systems[newG.n_sys++] = g2.systems[i];
+    }
     return newG;
 }
 
@@ -184,8 +188,40 @@ void printGroup(Group g) {
     printf("Set of %d systems = {", g.n_sys);
     for (int i = 0; i < g.n_sys; i++) {
         char buf[100];
-        sprintf(buf, "System #%d [CPUs = %d]", i, g.processors[i]);
+        sprintf(buf, "    System #%d [CPUs = %d]", i, g.processors[i]);
         printSystem(buf, g.systems[i]);
     }
     printf("}\n");
 }
+
+void printSystemToBuf(System T, char *buf) {
+    std::string result;
+    sprintf(buf, "["); //, m, T.n_tasks);//, 0, 0);
+    result = std::string(buf);
+
+    for (int i = 0; i < T.n_tasks; i++) {
+        sprintf(buf, "(task :C %d :D %d :T %d) ", T.tasks[i].c, T.tasks[i].d, T.tasks[i].d);
+        result += std::string(buf);
+    }
+
+    result += std::string("]");
+    strcpy(buf, result.c_str());
+}
+
+void printGroupToBuf(Group G, char *buf) {
+    std::string result;
+
+    result += std::string("{");
+
+    for (int i = 0; i < G.n_sys; i++) {
+        result += std::string("[CPUs = ") + std::to_string(G.processors[i]) + std::string("],");
+        printSystemToBuf(G.systems[i], buf);
+        result += std::string(buf) + std::string(" ");
+    }
+
+    result += std::string("}");
+
+    strcpy(buf, result.c_str());
+}
+
+

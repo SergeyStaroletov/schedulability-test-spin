@@ -4,7 +4,7 @@
 #define MAX_TASK 20
 #define MAX_SYS 20
 
-#define MC_MAX 6
+#define MC_MAX 5
 // Число задач, для которых можно _доказать_ планируемость формальными методами.
 // Сейчас N=6.
 
@@ -67,6 +67,8 @@ Group addSystemToGroup(System T, Group g, int cpus);
 Group addGroupToGroup(Group g1, Group g2);
 void printGroup(Group g);
 
+void printSystemToBuf(System T, char *buf);
+void printGroupToBuf(Group G, char *buf);
 
 
 #endif // STRUCTURES_H

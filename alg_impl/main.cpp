@@ -10,6 +10,13 @@
 #define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/dataset_n50"
 #define DPP 0
 
+FILE *csv;
+float current_u;
+float current_uc;
+char buf_test1[50];
+char buf_test2[50];
+char buf_sys[2000];
+
 
 int main(int argc, char *argv[]) {
 
@@ -17,8 +24,8 @@ int main(int argc, char *argv[]) {
     if (!FD) return 1;
     struct dirent* in_file;
     char fname[255];
-    FILE *csv = fopen("assign.csv", "w");
-    fprintf(csv, "test1;test2;assign;system\n");
+    csv = fopen("assign.csv", "w");
+    fprintf(csv, "n;m;u;uc;assign;test1;test2;alg;group_count;system;group\n");
 
 
     while ((in_file = readdir(FD))) {
@@ -58,10 +65,7 @@ int main(int argc, char *argv[]) {
 
                     int m = ecl_fixnum(taskset->instance.slots[0]);
                     int n = ecl_fixnum(taskset->instance.slots[1]);
-                   // if (n > 49) {
-                   //     n = 20;
-                   //     if (m > 20) m-= 20;
-                    //}
+
                     float u = ecl_single_float(taskset->instance.slots[2]);
                     if (u > 1) {
                         printf("Wrong utilization u = %f!\n", u);
@@ -100,26 +104,21 @@ int main(int argc, char *argv[]) {
                         tasks = ecl_cdr(tasks);
                     } while(true);
 
-                    char buf_rez[50];
-                    char buf_test1[50];
-                    char buf_test2[50];
-                    char buf_sys[2000];
+                    current_u = u;
+                    current_uc = uc;
+
                     AlgReturn2Str(do_test1(sys), buf_test1);
                     AlgReturn2Str(do_test2(sys), buf_test2);
-                    printSystemToBuf(sys, m, buf_sys);
+                    printSystemToBuf(sys, buf_sys);
 
                     Group G = Assignment(sys, m);
                     if (G.n_sys == 0) {
-                        printf("ASSIGNMENT FAILED\n");
-                        strcpy(buf_rez, "failed");
+                        printf("\nASSIGNMENT FAILED\n");
                     } else {
-                        printf("ASSIGNMENT OK |G| = %d", G.n_sys);
-                        sprintf(buf_rez, "OK %d", G.n_sys);
+                        printf("\nASSIGNMENT OK |G| = %d\n", G.n_sys);
                         printGroup(G);
                     }
 
-                    fprintf(csv, "%s;%s;%s;\"%s\"\n", buf_test1, buf_test2, buf_rez, buf_sys);
-                    fflush(csv);
 
                 } else break;
                 result = ecl_cdr(result);
