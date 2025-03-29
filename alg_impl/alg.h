@@ -3,7 +3,8 @@
 #include "structures.h"
 
 bool ModelChecking(System T, int m);
-Group MinBin_MC (System T, int m, bool UpDn);
-Group MidBin_MC(System T, int m);
+bool select(System T_1, System T, int m_1, int k);
+Group MidBin_ET(System T, int m, bool UpDn);
+
 
 #endif // ALG_H

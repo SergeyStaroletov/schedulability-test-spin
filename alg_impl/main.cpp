@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
                     } while(true);
 
 
-                    Group G = MinBin_MC(sys, m, true);
+                    Group G = MidBin_ET(sys, m, true);
                     printGroup(G);
 
                 } else break;

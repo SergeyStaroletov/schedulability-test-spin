@@ -26,34 +26,6 @@ bool Test_1(System T) {
 }
 
 
-// Подбор задач с мЕньшей утилизацией, если нет планируемости
-//todo: роль T?
-int select(System T_1, System T_2, System T, int m_1, int k) {
-    bool safe = false;
-
-    if (m_1 == pwr(T_1))
-        safe = Test_1(T_1);
-    else
-        safe = ModelChecking(T_1, m_1);
-
-    while (!safe && k > 0) {
-        if (empty(T_2)) {// заменили k-ю с конца задачу в Т_1 на самую лёгкую из T_2
-            T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k); // переходим к следующим задачам, которые после k-й задачи в исходном Т (без самой лёгкой)
-            k = k - 1; // пробуем заменить очередную задачу с хвоста Т_1
-        }
-        Task h = head(T_2);
-        replace(T_1, k, h); // заменяет k-ю задачу из Т_1 на первую задачу из T_2 (T_2 при этом уменьшается)
-        T_2 = removeTask(T_2, h);
-
-        if(m_1 == MC_MAX - 1)
-            safe = Test_1(T_1);
-        else
-            safe = ModelChecking(T_1, m_1);
-    }
-    return k;
-}
-
-
 // Как организовано убывание числа процессоров
 int change(int m_1, bool Dec) {
     if (Dec) {
@@ -66,103 +38,61 @@ int change(int m_1, bool Dec) {
 }
 
 
-// Алгоритм назначения только через формальные методы 1
-// Можно начинать с проверки самых толстых на минимальном числе процессоров
-// Пусть MC_MAX -- число задач, для которых можно _доказать_ планируемость формальными методами. Сейчас N=6.
+bool tester(System T, int m) {
+    if (m == pwr(T) - 1)
+        return Test_1(T);
+    else
+        return ModelChecking(T, m);
+}
 
-Group MinBin_MC (System T, int m, bool UpDn) { // возвращает разбиение на подсистемы (N, M) c M<N
-    if (pwr(T) > m * MC_MAX) return newEmptyGroup(); // не умеем проверять такое
-    T = sort(T, Sorting::byU, UpDn); // сортировка по утилизации
-    Group G_M = newEmptyGroup();
-    int m_t = 1; 		// сколько процессоров уже задействовано
-    while (pwr(T) > 0 && m_t < m) { // pwr(T) -- число задач в Т
-        debug("while");
-        System T_1 = first(T, MC_MAX);
-        printSystem("T1", T_1);
-        int m_1 = 1;
-        int k = MC_MAX;
-        System T_2 = removeTasks(T, T_1);//T_2 = T - T_1;
-        printSystem("T2", T_2);
-        bool safe;
-        while (k > 0) {
-            while (m_1 < MC_MAX && m_t < m) {
-                safe = ModelChecking(T_1, m_1);
-                printf("[MC] m_1=%d m_t=%d safe=%d\n", m_1, m_t, safe);
-                if (safe) { break; }
-                m_1++;
-                m_t++;
-            }
-            if (!safe && m_t == m) return newEmptyGroup();
-            if (m_1 < MC_MAX) break; // T_1 планируема на m_1-1 процессоре
-            // если не так, меняем задачи на полегче и пробуем ещё
-            if (empty(T_2)) {// заменили k-ю с конца задачу в Т_1 на самую лёгкую из T_2
-                T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k); // переходим к следующим задачам, которые после k-й задачи в исходном Т (без самой лёгкой)
-                printSystem("T2 after removeFirst", T_2);
-                k = k - 1; // пробуем заменить очередную задачу с хвоста Т_1
-                debug("empty t_2 -> T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k)");
-                printf("k = %d \n", k);
-            }
-           // replace(T_1, k, head(T_2)); // заменяет k-ю задачу из Т_1 на первую задачу из T_2 (T_2 при этом уменьшается)
-            Task h = head(T_2);
-            T_1 = replace(T_1, k, h); // заменяет k-ю задачу из Т_1 на первую задачу из T_2 (T_2 при этом уменьшается)
-            T_2 = removeTask(T_2, h); //T2 = T2-head();
-            debug("replace(T_1, k, head(T_2))");
-            printSystem("T1 after replace", T_1);
-            printSystem("T2 after remove head task", T_2);
-            m_t = m_t - MC_MAX + 1;
-            m_1 = 1;
-            printf("new m_t = %d, m_1 = 1\n", m_t);
+bool select(System T_1, System T, int m_1, int k) {
+    bool safe = false;
+    safe = tester(T_1, m_1);
+    System T_2 = removeTasks(T, T_1);
+    while (!safe && k > 0) {
+        if (empty(T_2)) {
+            T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k);
+            k = k -1;
         }
-        if (k == 0) { // не получилось запланировать N задач
+        replace(T_1, k, head(T_2));
+        safe = tester(T_1, m_1);
+    }
+    return safe;
+}
+
+Group MidBin_ET(System T, int m, bool UpDn) {
+    int MAX = MC_MAX;
+    T = sort(T, Sorting::byU, UpDn);
+    Group G_E = newEmptyGroup();
+    int n_c = ceil(pwr(T) / MAX);
+    int size_c = ceil(m / n_c);
+    while (m > 0 && pwr(T) > 0) {
+        int m_1 = size_c;
+        bool done = false;
+        if (pwr(T) < MAX)
+            MAX = pwr(T);
+        System T_1;
+        while (!done && m_1 < MAX && m_1 <= m) {
+            T_1 = first(T, MAX);
+            done = select(T_1, T, m_1, MAX);
+            m_1 = m_1 + 1;
+        }
+        if (!done)
             return newEmptyGroup();
-        }
-        else {
-            G_M = addSystemToGroup(T_1, G_M, m_1);//G_1 = G_1 + {T_1};  // получили ещё одну планируемую подсистему
-            debug("GM is updated!");
-
-            T = removeTasks(T, T_1); //T = T - T_1;		// оставшиеся задачи
-            printSystem("T after removeTasks from T1", T);
-        }
-    }
-    //	if G_1 == empty return FAIL;  // нет планируемых подсистем с таким разбиением
-    return G_M;
-}
-
-
-
-Group MidBin_MC(System T, int m) { // возвращает равномерное разбиение на подсистемы (N, M) c M<N
-    if (pwr(T) > m * MC_MAX) return newEmptyGroup(); // не умеем проверять такое
-    T = sort(T, Sorting::byU, true); // сортировка по утилизации
-    Group G_M = newEmptyGroup();
-    int n_c = ceil(T.n_tasks / MC_MAX); // число кластеров
-    int m_1 = ceil(m / n_c); // число процессоров
-    int m_t = 0;
-    while(m_t < m) {
-        System T_1 = first(T, MC_MAX);
-        System T_2 = removeTasks(T, T_1);
-        int done = 0;
-        while (done == 0 && m_1 < MC_MAX) {
-            done = select(T_1, T_2, T, m_1, MC_MAX);
-            m_1++;
-        }
-        if (done == 0)
-            return newEmptyGroup(); // не получилось запланировать N задач
-        G_M = addSystemToGroup(T_1, G_M, m_1); //G_M = G_M + {T_1}  // получили ещё одну планируемую подсистему
-        T = removeTasks(T, T_1); //T = T - T_1;		// оставшиеся задачи
-        m_t = m_t + m_1 - 1;
-        if (m_1 - 1 > ceil(m / n_c)) { // потратили процессоров больше, чем хотели
-            Group G_R = MidBin_MC(T, m - m_t);
-            if (G_R.systems == 0)
+        G_E = addSystemToGroup(T_1, G_E, m_1);
+        T_1 = removeTasks(T, T_1);
+        m = m - m_1 + 1;
+        if (m_1 - 1 > size_c) {
+            Group G_R = MidBin_ET(T, m, UpDn);
+            if (G_R.n_sys == 0)
                 return newEmptyGroup();
-            else return addGroupToGroup(G_M, G_R); //G_M + G_R
-        }
-        if (m - m_t - m_1 < 0)
-        {
-            m_1 = m - m_t;
+            else
+                return addGroupToGroup(G_E, G_R);
         }
     }
-    return G_M;
+    return G_E;
 }
+
 
 
 bool ModelChecking(System T, int m) {
@@ -178,47 +108,6 @@ bool ModelChecking(System T, int m) {
     }
 }
 
-
-Group model_checking_ap(System T, int n, int m) { // возвращает разбиение на подсистемы (N, M) c M<N
-    if (n > m * MC_MAX) return newEmptyGroup(); // не умеем проверять такое
-    T = sort(T, Sorting::byU, true); // сортировка по утилизации
-    Group G_1 = newEmptyGroup();
-    int m_t = 1; 		// сколько процессоров уже задействовано
-    while (pwr(T) > MC_MAX && m_t < m) { // pwr(T) -- число задач в Т
-        System T_1 = first(T, MC_MAX);
-        int m_1 = 1;
-        int k = MC_MAX;
-        System T_2 = removeTasks(T, T_1);//T_2 = T - T_1;
-        bool safe;
-        while (k > 0) {
-            while (m_1 < MC_MAX && m_t < m) {
-                safe = ModelChecking(T_1, m_1);
-                if (safe) { break; }
-                m_1++;
-                m_t++;
-            }
-            if (!safe && m_t == m) return newEmptyGroup();
-            if (m_1 < MC_MAX) break; // T_1 планируема на m_1-1 процессоре
-            // если не так, меняем задачи на полегче и пробуем ещё
-            if (empty(T_2)) {// заменили k-ю с конца задачу в Т_1 на самую лёгкую из T_2
-                T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k); // переходим к следующим задачам, которые после k-й задачи в исходном Т (без самой лёгкой)
-                k = k - 1; // пробуем заменить очередную задачу с хвоста Т_1
-            }
-            replace(T_1, k, head(T_2)); // заменяет k-ю задачу из Т_1 на первую задачу из T_2 (T_2 при этом уменьшается)
-            m_t = m_t - MC_MAX + 1;
-            m_1 = 1;
-        }
-        if (k == 0) { // не получилось запланировать N задач
-            return newEmptyGroup();
-        }
-        else {
-            G_1 = addSystemToGroup(T_1, G_1, m_1);//G_1 = G_1 + {T_1};  // получили ещё одну планируемую подсистему
-            T = removeTasks(T, T_1); //T = T - T_1;		// оставшиеся задачи
-        }
-    }
-    //	if G_1 == empty return FAIL;  // нет планируемых подсистем с таким разбиением
-    return G_1;
-}
 
 
 void tests() {
