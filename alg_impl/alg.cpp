@@ -46,6 +46,7 @@ bool tester(System T, int m) {
 }
 
 bool select(System T_1, System T, int m_1, int k) {
+    debug("select");
     bool safe = false;
     safe = tester(T_1, m_1);
     System T_2 = removeTasks(T, T_1);
@@ -64,6 +65,7 @@ bool select(System T_1, System T, int m_1, int k) {
 
 
 Group MaxBin_T(System T, int m, int UpDn, bool Dec) {
+    debug("MaxBin_T");
     T = sort(T, Sorting::byU, UpDn);
     Group G_A = newEmptyGroup();
     int m_1 = m - 1;
@@ -90,6 +92,7 @@ Group MaxBin_T(System T, int m, int UpDn, bool Dec) {
 
 
 Group MidBin_T(System T, int m, bool UpDn) {
+    debug("MidBin_T");
     T = sort(T, Sorting::byU, UpDn);
     Group G_A = newEmptyGroup();
     int size_c = ceil(sqrt(m));
@@ -118,6 +121,7 @@ Group MidBin_T(System T, int m, bool UpDn) {
 
 
 Group MidBin_ET(System T, int m, bool UpDn) {
+    debug("MidBin_ET");
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
     Group G_E = newEmptyGroup();
@@ -151,6 +155,7 @@ Group MidBin_ET(System T, int m, bool UpDn) {
 }
 
 Group MinBin_ET(System T, int m, bool UpDn) {
+    debug("MinBin_ET");
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
     Group G_E = newEmptyGroup();

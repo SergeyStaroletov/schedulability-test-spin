@@ -58,6 +58,9 @@ int main(int argc, char *argv[]) {
 
                     int m = ecl_fixnum(taskset->instance.slots[0]);
                     int n = ecl_fixnum(taskset->instance.slots[1]);
+                    if (n > 40) {
+                        n = 20;
+                    }
                     float u = ecl_single_float(taskset->instance.slots[2]);
                     if (u > 1) {
                         printf("Wrong utilization u = %f!\n", u);
@@ -100,8 +103,8 @@ int main(int argc, char *argv[]) {
                     char buf_test2[50];
                     char buf_sys[2000];
                     AlgReturn2Str(do_test1(sys), buf_test1);
-                    AlgReturn2Str(do_test2(sys), buf_test1);
-                    printSystemToBuf(sys, buf_sys);
+                    AlgReturn2Str(do_test2(sys), buf_test2);
+                    printSystemToBuf(sys, m, buf_sys);
 
                     Group G = Assignment(sys, m);
                     if (G.n_sys == 0) {
