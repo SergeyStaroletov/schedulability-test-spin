@@ -174,7 +174,15 @@ Group MinBin_ET(System T, int m, bool UpDn) {
 
 Group Assignment(System T, int m) {
     Group G = newEmptyGroup();
-
+    G = Choose_UpDn(T, m, Alg::Alg_MaxBin_T);
+    if (G.n_sys != 0) return G;
+    G = Choose_UpDn(T, m, Alg::Alg_MidBin_T);
+    if (G.n_sys != 0) return G;
+    G = Choose_UpDn(T, m, Alg::Alg_MidBin_ET);
+    if (G.n_sys != 0) return G;
+    G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET);
+    if (G.n_sys != 0) return G;
+    return newEmptyGroup();
 }
 
 
@@ -205,6 +213,7 @@ Group ExactTestA(System T, int m) {
     G_E = MinBin_ET(T, m, true);
     if (G_E.n_sys != 0) return G_E;
     G_E = MinBin_ET(T, m, false);
+    return G_E;
 }
 
 
