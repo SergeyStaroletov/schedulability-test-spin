@@ -8,6 +8,7 @@
 #include "structures.h"
 #include "test12.h"
 #include "modelcheck.h"
+#include "time.h"
 
 #define DEBUG 1
 #define EXPERIMENT 1
@@ -207,7 +208,7 @@ Group Assignment(System T, int m) {
 }
 
 
-void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G) {
+void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_time) {
     char buf_algname[50];
     if (A == Alg::Alg_MaxBin_T) strcpy(buf_algname, "MaxBin_T");
     else if (A == Alg::Alg_MidBin_T) strcpy(buf_algname, "MidBin_T");
@@ -230,9 +231,9 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G) {
 
     printGroupToBuf(G, buf_grp);
 
-   // fprintf(csv, "n;m;u;uc;assign;test1;test2;alg;group_count;system;group\n");
+   // fprintf(csv, "n;m;u;uc;assign;test1;test2;alg;group_count;runtime;system;group\n");
 
-    fprintf(csv, "%d;%d;%f;%f;%s;%s;%s;%s;%d;\"%s\";\"%s\"\n",
+    fprintf(csv, "%d;%d;%f;%f;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\"\n",
         T.n_tasks,
         m,
         current_u,
@@ -242,6 +243,7 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G) {
         buf_test2,
         buf_algname,
         G.n_sys,
+        run_time,
         buf_sys,
         buf_grp
     );
@@ -262,25 +264,28 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G) {
 
 Group RunA(System T, int m, Alg A, bool UpDn) {
 
-#ifdef EXPERIMENT
-
-#endif
-
+    clock_t time1 = clock();
     Group G = newEmptyGroup();
     if (A == Alg_MaxBin_T) G = MaxBin_T(T, m, UpDn, true);
+    clock_t time2 = clock();
+
     #ifdef EXPERIMENT
-      SaveCVS(A, UpDn, true, T, m, G);
+    SaveCVS(A, UpDn, true, T, m, G, (float)(time2 - time1) / CLOCKS_PER_SEC);
     #endif
 
     #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
     #endif
+
+    time1 = clock();
     if (A == Alg_MaxBin_T) G = MaxBin_T(T, m, UpDn, false);
     if (A == Alg_MidBin_T) G = MidBin_T(T, m, UpDn);
     if (A == Alg_MidBin_ET) G = MidBin_ET(T, m, UpDn);
     if (A == Alg_MinBin_ET) G = MinBin_ET(T, m, UpDn);
+    time2 = clock();
+
     #ifdef EXPERIMENT
-    SaveCVS(A, UpDn, false, T, m, G);
+    SaveCVS(A, UpDn, false, T, m, G, (float) (time2 - time1) / CLOCKS_PER_SEC);
     #endif
     return G;
 }

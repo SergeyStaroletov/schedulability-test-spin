@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     struct dirent* in_file;
     char fname[255];
     csv = fopen("assign.csv", "w");
-    fprintf(csv, "n;m;u;uc;assign;test1;test2;alg;group_count;system;group\n");
+    fprintf(csv, "n;m;u;uc;assign;test1;test2;alg;group_count;runtime;system;group\n");
 
 
     while ((in_file = readdir(FD))) {
