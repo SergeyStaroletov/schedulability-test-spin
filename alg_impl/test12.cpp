@@ -1,5 +1,6 @@
 #include "structures.h"
 #include <string>
+#include <string.h>
 #include <ecl/ecl.h>
 
 std::string printSystemToLisp(System T) {

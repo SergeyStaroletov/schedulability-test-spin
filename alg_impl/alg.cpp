@@ -137,8 +137,8 @@ Group MidBin_ET(System T, int m, bool UpDn) {
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
     Group G_E = newEmptyGroup();
-    int n_c = ceil(pwr(T) / MAX);
-    int size_c = ceil(m / n_c);
+    int n_c = ceil(1.0 * pwr(T) / MAX);
+    int size_c = ceil(1.0 * m / n_c);
     while (m > 0 && pwr(T) > 0) {
         int m_1 = size_c;
         bool done = false;
@@ -193,16 +193,23 @@ Group Assignment(System T, int m) {
     debug("----> Assignment for n = %d m = %d <----", pwr(T), m);
     Group G = newEmptyGroup();
     debug("Assignment 1/4");
-    G = Choose_UpDn(T, m, Alg::Alg_MaxBin_T);
+    G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET);
+    #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
+    #endif
     debug("Assignment 2/4");
     G = Choose_UpDn(T, m, Alg::Alg_MidBin_T);
+    #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
+    #endif
     debug("Assignment 3/4");
     G = Choose_UpDn(T, m, Alg::Alg_MidBin_ET);
+    #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
+    #endif
     debug("Assignment 4/4");
-    G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET);
+    G = Choose_UpDn(T, m, Alg::Alg_MaxBin_T);
+
     if (G.n_sys != 0) return G;
     return newEmptyGroup();
 }
@@ -270,7 +277,7 @@ Group RunA(System T, int m, Alg A, bool UpDn) {
     clock_t time2 = clock();
 
     #ifdef EXPERIMENT
-    SaveCVS(A, UpDn, true, T, m, G, (float)(time2 - time1) / CLOCKS_PER_SEC);
+    SaveCVS(A, UpDn, true, T, m, G, (float)(time2 - time1) / CLOCKS_PER_SEC * 1000);
     #endif
 
     #ifndef EXPERIMENT
@@ -285,7 +292,7 @@ Group RunA(System T, int m, Alg A, bool UpDn) {
     time2 = clock();
 
     #ifdef EXPERIMENT
-    SaveCVS(A, UpDn, false, T, m, G, (float) (time2 - time1) / CLOCKS_PER_SEC);
+    SaveCVS(A, UpDn, false, T, m, G, (float) (time2 - time1) / CLOCKS_PER_SEC * 1000);
     #endif
     return G;
 }
@@ -305,21 +312,15 @@ Group ExactTestA(System T, int m) {
     debug("----> ExactTestA for n = %d m = %d <----", pwr(T), m);
     debug("ExactTestA 1/4");
     Group G_E = MidBin_ET(T, m, true);
-    #ifndef EXPERIMENT
     if (G_E.n_sys != 0) return G_E;
-    #endif
 
     debug("ExactTestA 2/4");
     G_E = MidBin_ET(T, m, false);
-    #ifndef EXPERIMENT
     if (G_E.n_sys != 0) return G_E;
-    #endif
 
     debug("ExactTestA 3/4");
     G_E = MinBin_ET(T, m, true);
-    #ifndef EXPERIMENT
     if (G_E.n_sys != 0) return G_E;
-    #endif
 
     debug("ExactTestA 4/4");
     G_E = MinBin_ET(T, m, false);

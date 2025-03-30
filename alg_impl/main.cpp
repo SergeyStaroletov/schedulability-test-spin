@@ -7,7 +7,7 @@
 
 #include "alg.h"
 #include "test12.h"
-#define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/dataset_n50"
+#define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/dataset_20"
 #define DPP 0
 
 FILE *csv;
@@ -107,7 +107,11 @@ int main(int argc, char *argv[]) {
                     current_u = u;
                     current_uc = uc;
 
-                    AlgReturn2Str(do_test1(sys), buf_test1);
+                    if (n == m - 1)
+                        AlgReturn2Str(do_test1(sys), buf_test1);
+                    else strcpy(buf_test1, "");
+
+
                     AlgReturn2Str(do_test2(sys), buf_test2);
                     printSystemToBuf(sys, buf_sys);
 
