@@ -39,6 +39,13 @@ bool Test_1(System T) {
 }
 
 
+AlgReturn ES_Test(System T, int m) {
+    bool retFalse = (Test_1(T) == AlgReturn::infeasible);
+    if (retFalse) return AlgReturn::infeasible;
+    if (m == pwr(T)) return AlgReturn::schedulable;
+    return AlgReturn::unknown;
+}
+
 
 bool tester(System T, int m) {
     if (m == pwr(T) - 1)
@@ -235,19 +242,21 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
         strcat(buf_algname, "Down");
 
     char buf_grp[2000];
-
     printGroupToBuf(G, buf_grp);
+    bool I = (ES_Test(T, m) == false);
+    bool C = (G.n_sys != 0);
 
-   // fprintf(csv, "n;m;u;uc;assign;test1;test2;alg;group_count;runtime;system;group\n");
+   // fprintf(csv, "n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;system;group\n");
 
-    fprintf(csv, "%d;%d;%f;%f;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\"\n",
+    fprintf(csv, "%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\"\n",
         T.n_tasks,
         m,
         current_u,
         current_uc,
-        G.n_sys != 0 ? "assignment" : "fail",
         buf_test1,
         buf_test2,
+        C ? "true" : "false",
+        I ? "true" : "false",
         buf_algname,
         G.n_sys,
         run_time,

@@ -7,7 +7,7 @@
 
 #include "alg.h"
 #include "test12.h"
-#define DATASET_DIR "/Users/sergey/Projects/ECRTS2025/dataset_20"
+#define DATASET_DIR "./dataset_20"
 #define DPP 0
 
 FILE *csv;

@@ -51,6 +51,7 @@ enum Alg {
 System newEmptySystem();
 bool empty(System T);
 Task head(System T);
+int pwr(System T);
 System sort(System T, Sorting byWhat, bool UpDown);
 int pwr(System T);
 bool theSameTask(Task t1, Task t2);
