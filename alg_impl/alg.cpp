@@ -92,6 +92,7 @@ Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
             T = removeTasks(T, T_1);
             m = m - m_1;
             debug("new m = %d", m);
+            if (pwr(T) <= m) return addSystemToGroup(T, G_A, m);
         } else {
             if (Dec)
                 m_1 = floor(m_1 / 2);
@@ -129,6 +130,7 @@ Group MidBin_T(System T, int m, bool UpDn) {
             debug("new m = %d", m);
             G_A = addSystemToGroup(T_1, G_A, m_1);
             T = removeTasks(T, T_1);
+            if (pwr(T) <= m) return addSystemToGroup(T, G_A, m);
         } else break;
     }
     if (pwr(T) == 0) return G_A;
@@ -159,9 +161,10 @@ Group MidBin_ET(System T, int m, bool UpDn) {
         }
         if (!done)
             return newEmptyGroup();
-        G_E = addSystemToGroup(T_1, G_E, m_1);
-        T_1 = removeTasks(T, T_1);
+        G_E = addSystemToGroup(T_1, G_E, m_1 - 1);
+        T = removeTasks(T, T_1);
         m = m - m_1 + 1;
+        if (pwr(T) <= m) return addSystemToGroup(T, G_E, m);
         if (m_1 - 1 > size_c) {
             Group G_R = MidBin_ET(T, m, UpDn);
             if (G_R.n_sys == 0)
@@ -189,9 +192,10 @@ Group MinBin_ET(System T, int m, bool UpDn) {
             m_1 = m_1 + 1;
         }
         if (!done) return newEmptyGroup();
-        G_E = addSystemToGroup(T_1, G_E, m_1);
+        G_E = addSystemToGroup(T_1, G_E, m_1 - 1);
         T = removeTasks(T, T_1);
         m = m - m_1 + 1;
+        if (pwr(T) <= m) return addSystemToGroup(T, G_E, m);
     }
     return G_E;
 }
@@ -280,18 +284,22 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
 
 Group RunA(System T, int m, Alg A, bool UpDn) {
 
-    clock_t time1 = clock();
+    clock_t time1;
+    clock_t time2;
     Group G = newEmptyGroup();
-    if (A == Alg_MaxBin_T) G = MaxBin_T(T, m, UpDn, true);
-    clock_t time2 = clock();
+    if (A == Alg_MaxBin_T) {
+        time1 = clock();
+        G = MaxBin_T(T, m, UpDn, true);
+        time2 = clock();
 
-    #ifdef EXPERIMENT
-    SaveCVS(A, UpDn, true, T, m, G, (float)(time2 - time1) / CLOCKS_PER_SEC * 1000);
-    #endif
+        #ifdef EXPERIMENT
+        SaveCVS(A, UpDn, true, T, m, G, (float)(time2 - time1) / CLOCKS_PER_SEC * 1000);
+        #endif
 
-    #ifndef EXPERIMENT
-    if (G.n_sys != 0) return G;
-    #endif
+        #ifndef EXPERIMENT
+        if (G.n_sys != 0) return G;
+        #endif
+    }
 
     time1 = clock();
     if (A == Alg_MaxBin_T) G = MaxBin_T(T, m, UpDn, false);
