@@ -9,7 +9,8 @@ Group MidBin_T(System T, int m, bool UpDn); //alg2
 Group MidBin_ET(System T, int m, bool UpDn); //alg3
 Group MinBin_ET(System T, int m, bool UpDn); //alg4
 
-bool select(System T_1, System T, int m_1, int k); //alg5
+System select(System T_1, System T, int m_1, int k, bool * safe);
+//bool select(System T_1, System T, int m_1, int k); //alg5
 
 Group Assignment(System T, int m); //alg6
 Group Choose_UpDn(System T, int m, Alg A);

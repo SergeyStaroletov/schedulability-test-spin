@@ -54,13 +54,13 @@ bool tester(System T, int m) {
         return ModelChecking(T, m);
 }
 
-bool select(System T_1, System T, int m_1, int k) {
+System select(System T_1, System T, int m_1, int k, bool * safe) {
     debug("select");
-    bool safe = tester(T_1, m_1);
+    *safe = tester(T_1, m_1);
     System T_2 = removeTasks(T, T_1);
     if (empty(T_2))
-        return safe;
-    while (!safe && k > 0) {
+        return T_1;
+    while (!(*safe) && k > 0) {
         if (empty(T_2)) {
             debug("k -> %d\n", k);
             T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k);
@@ -69,9 +69,9 @@ bool select(System T_1, System T, int m_1, int k) {
         Task h = head(T_2);
         T_1 = replace(T_1, k, h);
         T_2 = removeTask(T_2, h);
-        safe = tester(T_1, m_1);
+        *safe = tester(T_1, m_1);
     }
-    return safe;
+    return T_1;
 }
 
 
@@ -85,7 +85,8 @@ Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
     debug("m1 = %d", m_1);
     while (m_1 > 1 && pwr(T) >= m_1 + 1 && m > m_1) {
         System T_1 = first(T, m_1 + 1);
-        bool done = select(T_1, T, m_1, m_1 + 1);
+        bool done;
+        T_1 = select(T_1, T, m_1, m_1 + 1, &done);
         if (done) {
             debug(" ---> done !");
             G_A = addSystemToGroup(T_1, G_A, m_1);
@@ -121,7 +122,7 @@ Group MidBin_T(System T, int m, bool UpDn) {
         System T_1;
         while (!done && m_1 > 0) {
             T_1 = first(T, m_1 + 1);
-            done = select(T_1, T, m_1, m_1 + 1);
+            T_1 = select(T_1, T, m_1, m_1 + 1, &done);
             m_1 = m_1 - 1;
         }
         if (done) {
@@ -156,7 +157,7 @@ Group MidBin_ET(System T, int m, bool UpDn) {
         System T_1;
         while (!done && m_1 < MAX && m_1 <= m) {
             T_1 = first(T, MAX);
-            done = select(T_1, T, m_1, MAX);
+            T_1 = select(T_1, T, m_1, MAX, &done);
             m_1 = m_1 + 1;
         }
         if (!done)
@@ -188,7 +189,7 @@ Group MinBin_ET(System T, int m, bool UpDn) {
         System T_1;
         while (!done && m_1 < MAX && m_1 <= m) {
             T_1 = first(T, MAX);
-            done = select(T_1, T, m_1, MAX);
+            T_1 = select(T_1, T, m_1, MAX, &done);
             m_1 = m_1 + 1;
         }
         if (!done) return newEmptyGroup();
