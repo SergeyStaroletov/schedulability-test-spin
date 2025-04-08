@@ -85,13 +85,13 @@ Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
     Group G_A = newEmptyGroup();
     int m_1 = m - 1;
     debug("m1 = %d", m_1);
-    while (m_1 > 1 && pwr(T) >= m_1 + 1 && m > m_1) {
-        System T_1 = first(T, m_1 + 1);
-        T_1 = select(T, m_1, m_1 + 1);
+    while (m_1 > 1 && m > m_1) {
+        System T_1 = select(T, m_1, m_1 + 1);
         if (!empty(T_1)) {
             debug(" ---> done !");
             G_A = addSystemToGroup(T_1, G_A, m_1);
             T = removeTasks(T, T_1);
+            if (empty(T)) return G_A;
             m = m - m_1;
             debug("new m = %d", m);
             if (pwr(T) <= m) return addSystemToGroup(T, G_A, m);
@@ -103,8 +103,6 @@ Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
             debug("new m1 = %d", m_1);
         }
     }
-    if (pwr(T) <= m)
-        return addSystemToGroup(T, G_A, m);
     Group G_E = ExactTestA(T, m);
     if (G_E.n_sys == 0) return newEmptyGroup();
     return addGroupToGroup(G_A, G_E);
@@ -116,9 +114,9 @@ Group MidBin_T(System T, int m, bool UpDn) {
     T = sort(T, Sorting::byU, UpDn);
     Group G_A = newEmptyGroup();
     int size_c = floor(sqrt(m));
-    while (m > 1 && pwr(T) > 0) {
+    while (m > 1) {
         double m_1 = size_c;
-        if (pwr(T) <= m_1) return addSystemToGroup(T, G_A, m_1);
+        if (m <= m_1) m_1 = m - 1;
         System T_1 = newEmptySystem();
         while (empty(T_1) && m_1 > 0) {
             T_1 = select(T, m_1, m_1 + 1);
@@ -126,15 +124,14 @@ Group MidBin_T(System T, int m, bool UpDn) {
         }
         if (!empty(T_1)) {
             debug("! ---> done !");
-            m = m - m_1 - 1;
-            debug("new m = %d", m);
             G_A = addSystemToGroup(T_1, G_A, m_1);
             T = removeTasks(T, T_1);
+            if (empty(T)) return G_A;
+            m = m - m_1 - 1;
+            debug("new m = %d", m);
             if (pwr(T) <= m) return addSystemToGroup(T, G_A, m);
         } else break;
     }
-    if (pwr(T) == 0) return G_A;
-    if (pwr(T) <= m) return addSystemToGroup(T, G_A, m);
     Group G_E = ExactTestA(T, m);
     if (G_E.n_sys == 0) return newEmptyGroup();
     return addGroupToGroup(G_A, G_E);
@@ -148,19 +145,19 @@ Group MidBin_ET(System T, int m, bool UpDn) {
     Group G_E = newEmptyGroup();
     int n_c = ceil(1.0 * pwr(T) / MAX);
     int size_c = ceil(1.0 * m / n_c);
-    while (m > 0 && pwr(T) > 0) {
+    while (m > 0) {
+        if (pwr(T) < MAX) MAX = pwr(T);
         int m_1 = size_c;
-        if (pwr(T) < MAX)
-            MAX = pwr(T);
+        if (m <= m_1) m_1 = m;
         System T_1 = newEmptySystem();
         while (empty(T_1) && m_1 < MAX && m_1 <= m) {
             T_1 = select(T, m_1, MAX);
             m_1 = m_1 + 1;
         }
-        if (empty(T_1))
-            return newEmptyGroup();
-        G_E = addSystemToGroup(T_1, G_E, m_1 - 1);
+        if (empty(T_1)) return newEmptyGroup();
+        G_E = addSystemToGroup(T_1, G_E, m_1);
         T = removeTasks(T, T_1);
+        if (empty(T)) return G_E;
         m = m - m_1 + 1;
         if (pwr(T) <= m) return addSystemToGroup(T, G_E, m);
         if (m_1 - 1 > size_c) {
@@ -179,7 +176,7 @@ Group MinBin_ET(System T, int m, bool UpDn) {
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
     Group G_E = newEmptyGroup();
-    while (m > 0 && pwr(T) > 0) {
+    while (m > 0) {
         int m_1 = 1;
         if (pwr(T) < MAX) MAX = pwr(T);
         System T_1 = newEmptySystem();
@@ -190,6 +187,7 @@ Group MinBin_ET(System T, int m, bool UpDn) {
         if (empty(T_1)) return newEmptyGroup();
         G_E = addSystemToGroup(T_1, G_E, m_1 - 1);
         T = removeTasks(T, T_1);
+        if (empty(T)) return G_E;
         m = m - m_1 + 1;
         if (pwr(T) <= m) return addSystemToGroup(T, G_E, m);
     }
