@@ -1,8 +1,8 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
-#define MAX_TASK 20
-#define MAX_SYS 20
+#define MAX_TASK 40
+#define MAX_SYS 40
 
 #define MC_MAX 5
 // Число задач, для которых можно _доказать_ планируемость формальными методами.
@@ -17,6 +17,7 @@ struct Task {
 };
 
 struct System {
+    int id;
     int n_tasks;
     struct Task tasks[MAX_TASK];
 };
@@ -42,9 +43,10 @@ enum Sorting {
 
 enum Alg {
     Alg_MaxBin_T,
-    Alg_MidBin_T,
-    Alg_MidBin_ET,
-    Alg_MinBin_ET
+    Alg_MidBin_T,//
+    Alg_MidBin_ET,//
+    Alg_MinBin_ET,
+    Alg_MinBin_ET_small
 };
 
 

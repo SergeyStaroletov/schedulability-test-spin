@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     struct dirent* in_file;
     char fname[255];
     csv = fopen("assign.csv", "w");
-    fprintf(csv, "n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;system;group\n");
+    fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;system;group\n");
 
 
     while ((in_file = readdir(FD))) {
@@ -63,33 +63,40 @@ int main(int argc, char *argv[]) {
                 if (ecl_t_of(taskset) == t_structure) {
                     ecl_print(taskset, ECL_T);
 
-                    int m = ecl_fixnum(taskset->instance.slots[0]);
-                    int n = ecl_fixnum(taskset->instance.slots[1]);
+                    int id = ecl_fixnum(taskset->instance.slots[0]);
+                    int m = ecl_fixnum(taskset->instance.slots[1]);
+                    int n = ecl_fixnum(taskset->instance.slots[2]);
 
-                    float u = ecl_single_float(taskset->instance.slots[2]);
+                    float u = ecl_single_float(taskset->instance.slots[3]);
                     if (u > 1) {
                         printf("Wrong utilization u = %f!\n", u);
                         break;
                     }
-                    float uc = ecl_single_float(taskset->instance.slots[3]);
-                    printf("\n[%d] Parsed taskset: M=%d N=%d U=%f UC=%f\n", count, m, n, u, uc);
-                    cl_object tasks = taskset->instance.slots[4];
+                    float uc = ecl_single_float(taskset->instance.slots[4]);
+                    printf("\n[%d] Parsed taskset: I=%d M=%d N=%d U=%f UC=%f\n", id, count, m, n, u, uc);
+                    cl_object tasks = taskset->instance.slots[5];
 
                     System sys = newEmptySystem();
                     sys.n_tasks = n;
+                    sys.id = id;
 
                     int i = 0;
                     do {
                         cl_object task = ecl_car(tasks);
                         if (ecl_t_of(task) == t_structure) {
-                            //ecl_print(task, ECL_T);
                             int c = ecl_fixnum(task->instance.slots[0]);
                             int d = ecl_fixnum(task->instance.slots[1]);
                             int t = ecl_fixnum(task->instance.slots[2]);
-                            //printf("\n Parsed task: C=%d D=%d T=%d\n", c, d, t);
                             if (c == d) {
                                 d++;
                                 t++;
+                            }
+
+                            if (i > 19) {
+                                n = 20;
+                                printf("I can't N > 20 !\n");
+                                sys.n_tasks = n;
+                                break;
                             }
                             if (i == n) {
                                 printf("wrong number of tasks!\n");
@@ -104,6 +111,39 @@ int main(int argc, char *argv[]) {
                         tasks = ecl_cdr(tasks);
                     } while(true);
 
+
+                    tasks = taskset->instance.slots[6];
+
+                    do {
+                        cl_object task = ecl_car(tasks);
+                        if (ecl_t_of(task) == t_structure) {
+                            int c = ecl_fixnum(task->instance.slots[0]);
+                            int d = ecl_fixnum(task->instance.slots[1]);
+                            int t = ecl_fixnum(task->instance.slots[2]);
+                            if (c == d) {
+                                d++;
+                                t++;
+                            }
+
+                            if (i > 40) {
+                                n = 40;
+                                printf("I can't N > 40 !\n");
+                                sys.n_tasks = n;
+                                break;
+                            }
+
+                            sys.tasks[i].c = c;
+                            sys.tasks[i].d = d;
+                            sys.tasks[i].u = 1.0 * c / d;
+                            sys.tasks[i].p = i;
+                            i++;
+                        } else break;
+                        tasks = ecl_cdr(tasks);
+                    } while(true);
+
+
+
+
                     current_u = u;
                     current_uc = uc;
 
@@ -114,6 +154,8 @@ int main(int argc, char *argv[]) {
 
                     AlgReturn2Str(do_test2(sys), buf_test2);
                     printSystemToBuf(sys, buf_sys);
+
+                    //printf("System = %s\n test1=%s test2=%s", buf_sys, buf_test1, buf_test2);
 
                     Group G = Assignment(sys, m);
                     if (G.n_sys == 0) {

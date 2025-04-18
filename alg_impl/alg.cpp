@@ -124,7 +124,7 @@ Group MidBin_T(System T, int m, bool UpDn) {
         }
         if (!empty(T_1)) {
             debug("! ---> done !");
-            G_A = addSystemToGroup(T_1, G_A, m_1);
+            G_A = addSystemToGroup(T_1, G_A, m_1 + 1);//
             T = removeTasks(T, T_1);
             if (empty(T)) return G_A;
             m = m - m_1 - 1;
@@ -155,7 +155,7 @@ Group MidBin_ET(System T, int m, bool UpDn) {
             m_1 = m_1 + 1;
         }
         if (empty(T_1)) return newEmptyGroup();
-        G_E = addSystemToGroup(T_1, G_E, m_1);
+        G_E = addSystemToGroup(T_1, G_E, m_1 - 1);
         T = removeTasks(T, T_1);
         if (empty(T)) return G_E;
         m = m - m_1 + 1;
@@ -189,10 +189,35 @@ Group MinBin_ET(System T, int m, bool UpDn) {
         T = removeTasks(T, T_1);
         if (empty(T)) return G_E;
         m = m - m_1 + 1;
+        //if (pwr(T) <= m) return addSystemToGroup(T, G_E, m);
+    }
+    return G_E;
+}
+
+
+Group MinBin_ET_small(System T, int m, bool UpDn) {
+    debug("----> MinBin_ET for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
+    int MAX = MC_MAX;
+    T = sort(T, Sorting::byU, UpDn);
+    Group G_E = newEmptyGroup();
+    while (m > 0) {
+        int m_1 = 1;
+        if (pwr(T) < MAX) MAX = pwr(T);
+        System T_1 = newEmptySystem();
+        while (empty(T_1) && m_1 < MAX && m_1 <= m) {
+            T_1 = select(T, m_1, MAX);
+            m_1 = m_1 + 1;
+        }
+        if (empty(T_1)) return newEmptyGroup();
+        G_E = addSystemToGroup(T_1, G_E, m_1 - 1);
+        T = removeTasks(T, T_1);
+        if (empty(T)) return G_E;
+        m = m - m_1 + 1;
         if (pwr(T) <= m) return addSystemToGroup(T, G_E, m);
     }
     return G_E;
 }
+
 
 Group Assignment(System T, int m) {
     debug("----> Assignment for n = %d m = %d <----", pwr(T), m);
@@ -244,9 +269,10 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
     bool I = (ES_Test(T, m) == false);
     bool C = (G.n_sys != 0);
 
-   // fprintf(csv, "n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;system;group\n");
+   // fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;system;group\n");
 
-    fprintf(csv, "%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\"\n",
+    fprintf(csv, "%d;%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\"\n",
+        T.id,
         T.n_tasks,
         m,
         current_u,

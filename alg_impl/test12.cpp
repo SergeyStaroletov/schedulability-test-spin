@@ -6,7 +6,7 @@
 std::string printSystemToLisp(System T) {
     char buf[300];
     std::string result;
-    sprintf(buf, "(make-taskset :M %d :N %d :U 0 :UC 0 :tasks (list ", 0, T.n_tasks);//, 0, 0);
+    sprintf(buf, "(make-tasksett :M %d :N %d :U 0 :UC 0 :tasks (list ", 0, T.n_tasks);//, 0, 0);
     result = std::string(buf);
 
     for (int i = 0; i < T.n_tasks; i++) {
@@ -26,7 +26,10 @@ int prepare(int argc, char *argv[]) {
     }
 
     cl_object result = cl_eval(c_string_to_object("(defstruct (task) C D T)"));
-    result = cl_eval(c_string_to_object("(defstruct (taskset) M N U UC tasks)"));
+    result = cl_eval(c_string_to_object("(defstruct (taskset) I M N U UC tasks1 tasks2)"));
+
+    result = cl_eval(c_string_to_object("(defstruct (tasksett) I M N U UC tasks)"));
+
 
     cl_eval(c_string_to_object("(defun implies (x y)"
                                "(cond ((equal x nil) T)"
@@ -34,8 +37,8 @@ int prepare(int argc, char *argv[]) {
 
     cl_eval(c_string_to_object(
         "(defun Alg1 (ts)"
-        "  (do ((n (taskset-N ts))"
-        "       (tasks (taskset-tasks ts))"
+        "  (do ((n (tasksett-N ts))"
+        "       (tasks (tasksett-tasks ts))"
         "       (i 1 (+ i 1)))"
         "      ((> i n))"
         "    (do ((j 1 (+ j 1)))"
@@ -65,8 +68,8 @@ int prepare(int argc, char *argv[]) {
 
     cl_eval(c_string_to_object(
         "(defun Alg2 (ts)"
-        "  (do ((n (taskset-N ts))"
-        "       (tasks (taskset-tasks ts))"
+        "  (do ((n (tasksett-N ts))"
+        "       (tasks (tasksett-tasks ts))"
         "       (i 1 (+ i 1)))"
         "      ((> i n))"
         "    (do ((j 1 (+ j 1)))"
