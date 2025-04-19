@@ -195,14 +195,6 @@ void printGroup(Group g) {
     printf("}\n");
 }
 
-void printGroupLess(Group g) {
-    printf("%d(", g.n_sys);
-    for (int i = 0; i < g.n_sys; i++) {
-        char buf[100];
-        sprintf(buf, "[CPU=%d,N=%d]", i, g.processors[i], g.systems[i].n_tasks);
-    }
-    printf(")\n");
-}
 
 void printSystemToBuf(System T, char *buf) {
     std::string result;
@@ -234,4 +226,17 @@ void printGroupToBuf(Group G, char *buf) {
     strcpy(buf, result.c_str());
 }
 
+
+void printGroupToBufLess(Group G, char *buf) {
+    std::string result;
+
+    result += std::string("{");
+    for (int i = 0; i < G.n_sys; i++) {
+        result += std::string("[CPUs=") + std::to_string(G.processors[i]) + std::string(",");
+        result += std::string("NTask=") + std::to_string(G.systems[i].n_tasks) + std::string("]");
+    }
+    result += std::string("}");
+
+    strcpy(buf, result.c_str());
+}
 

@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     struct dirent* in_file;
     char fname[255];
     csv = fopen("assign.csv", "w");
-    fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;system;group\n");
+    fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;assign;system;group\n");
 
 
     while ((in_file = readdir(FD))) {
@@ -111,9 +111,9 @@ int main(int argc, char *argv[]) {
                         tasks = ecl_cdr(tasks);
                     } while(true);
 
+                    //other portion of tasks!
 
                     tasks = taskset->instance.slots[6];
-
                     do {
                         cl_object task = ecl_car(tasks);
                         if (ecl_t_of(task) == t_structure) {
@@ -141,16 +141,12 @@ int main(int argc, char *argv[]) {
                         tasks = ecl_cdr(tasks);
                     } while(true);
 
-
-
-
                     current_u = u;
                     current_uc = uc;
 
                     if (n == m - 1)
                         AlgReturn2Str(do_test1(sys), buf_test1);
                     else strcpy(buf_test1, "");
-
 
                     AlgReturn2Str(do_test2(sys), buf_test2);
                     printSystemToBuf(sys, buf_sys);

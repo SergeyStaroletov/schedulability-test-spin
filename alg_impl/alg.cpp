@@ -12,6 +12,8 @@
 
 #define DEBUG 1
 #define EXPERIMENT 1
+#define NEED_MID_BIN 1
+
 
 extern FILE *csv;
 extern float current_u;
@@ -222,22 +224,30 @@ Group MinBin_ET_small(System T, int m, bool UpDn) {
 Group Assignment(System T, int m) {
     debug("----> Assignment for n = %d m = %d <----", pwr(T), m);
     Group G = newEmptyGroup();
-    debug("Assignment 1/4");
+    debug("Assignment 1");
     G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET);
     #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
     #endif
-    debug("Assignment 2/4");
+#ifdef NEED_MID_BIN
+    debug("Assignment 2");
     G = Choose_UpDn(T, m, Alg::Alg_MidBin_T);
     #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
     #endif
-    debug("Assignment 3/4");
+    debug("Assignment 3");
     G = Choose_UpDn(T, m, Alg::Alg_MidBin_ET);
     #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
     #endif
-    debug("Assignment 4/4");
+#elif
+    debug("Assignment 1'");
+    G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET_small);
+    #ifndef EXPERIMENT
+    if (G.n_sys != 0) return G;
+    #endif
+#endif
+    debug("Assignment 4");
     G = Choose_UpDn(T, m, Alg::Alg_MaxBin_T);
 
     if (G.n_sys != 0) return G;
@@ -251,6 +261,8 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
     else if (A == Alg::Alg_MidBin_T) strcpy(buf_algname, "MidBin_T");
     else if (A == Alg::Alg_MidBin_ET) strcpy(buf_algname, "MidBin_ET");
     else if (A == Alg::Alg_MinBin_ET) strcpy(buf_algname, "MinBin_ET");
+    else if (A == Alg::Alg_MinBin_ET_small) strcpy(buf_algname, "MinBin_ET_small");
+
 
     if (A == Alg::Alg_MaxBin_T) {
         if (Dec)
@@ -265,13 +277,18 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
         strcat(buf_algname, "Down");
 
     char buf_grp[2000];
+    char buf_grp_l[1000];
+
     printGroupToBuf(G, buf_grp);
+    printGroupToBufLess(G, buf_grp_l);
+
+
     bool I = (ES_Test(T, m) == false);
     bool C = (G.n_sys != 0);
 
-   // fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;system;group\n");
+   // fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;assign;system;group\n");
 
-    fprintf(csv, "%d;%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\"\n",
+    fprintf(csv, "%d;%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\";\"%s\"\n",
         T.id,
         T.n_tasks,
         m,
@@ -284,6 +301,7 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
         buf_algname,
         G.n_sys,
         run_time,
+        buf_grp_l,
         buf_sys,
         buf_grp
     );
@@ -326,6 +344,7 @@ Group RunA(System T, int m, Alg A, bool UpDn) {
     if (A == Alg_MidBin_T) G = MidBin_T(T, m, UpDn);
     if (A == Alg_MidBin_ET) G = MidBin_ET(T, m, UpDn);
     if (A == Alg_MinBin_ET) G = MinBin_ET(T, m, UpDn);
+    if (A == Alg_MinBin_ET_small) G = MinBin_ET_small(T, m, UpDn);
     time2 = clock();
 
     #ifdef EXPERIMENT

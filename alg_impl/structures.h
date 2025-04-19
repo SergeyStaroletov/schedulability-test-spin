@@ -72,6 +72,6 @@ void printGroup(Group g);
 
 void printSystemToBuf(System T, char *buf);
 void printGroupToBuf(Group G, char *buf);
-
+void printGroupToBufLess(Group G, char *buf);
 
 #endif // STRUCTURES_H
