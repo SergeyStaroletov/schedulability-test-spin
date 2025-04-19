@@ -12,7 +12,7 @@
 
 #define DEBUG 1
 #define EXPERIMENT 1
-#define NEED_MID_BIN 1
+//#define NEED_MID_BIN 1
 
 
 extern FILE *csv;
@@ -240,7 +240,7 @@ Group Assignment(System T, int m) {
     #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
     #endif
-#elif
+#else
     debug("Assignment 1'");
     G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET_small);
     #ifndef EXPERIMENT
