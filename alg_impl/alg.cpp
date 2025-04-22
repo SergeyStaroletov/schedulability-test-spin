@@ -85,7 +85,7 @@ Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
     debug("----> MaxBin_T for n = %d m = %d UpDn = %d Dec = %d <----", pwr(T), m, UpDn, Dec);
     T = sort(T, Sorting::byU, UpDn);
     Group G_A = newEmptyGroup();
-    int m_1 = m - 1;
+    int m_1 = (m * MC_MAX - pwr(T) + 1) / (MC_MAX - 1);//m - 1;
     debug("m1 = %d", m_1);
     while (m_1 > 1 && m > m_1) {
         System T_1 = select(T, m_1, m_1 + 1);
@@ -97,6 +97,7 @@ Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
             m = m - m_1;
             debug("new m = %d", m);
             if (pwr(T) <= m) return addSystemToGroup(T, G_A, m);
+            m_1 = (m * MC_MAX - pwr(T) + 1) / (MC_MAX - 1);
         } else {
             if (Dec)
                 m_1 = floor(m_1 / 2);
@@ -173,9 +174,11 @@ Group MidBin_ET(System T, int m, bool UpDn) {
     return G_E;
 }
 
-Group MinBin_ET(System T, int m, bool UpDn) {
-    debug("----> MinBin_ET for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
+Group MinBin_ET_small(System T, int m, bool UpDn) {
+    debug("----> MinBin_ET_small for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
     int MAX = MC_MAX;
+    if (T.n_tasks / MAX > m)
+        return newEmptyGroup();
     T = sort(T, Sorting::byU, UpDn);
     Group G_E = newEmptyGroup();
     while (m > 0) {
@@ -191,13 +194,15 @@ Group MinBin_ET(System T, int m, bool UpDn) {
         T = removeTasks(T, T_1);
         if (empty(T)) return G_E;
         m = m - m_1 + 1;
+        if (m == 0 && pwr(T) > 0)
+            return newEmptyGroup();
         //if (pwr(T) <= m) return addSystemToGroup(T, G_E, m);
     }
     return G_E;
 }
 
 
-Group MinBin_ET_small(System T, int m, bool UpDn) {
+Group MinBin_ET(System T, int m, bool UpDn) {
     debug("----> MinBin_ET for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
@@ -366,20 +371,22 @@ Group Choose_UpDn(System T, int m, Alg A) {
 
 Group ExactTestA(System T, int m) {
     debug("----> ExactTestA for n = %d m = %d <----", pwr(T), m);
+    Group G_E;
+#ifndef EXPERIMENT
     debug("ExactTestA 1/4");
-    Group G_E = MidBin_ET(T, m, true);
+    G_E = MidBin_ET(T, m, true);
     if (G_E.n_sys != 0) return G_E;
 
     debug("ExactTestA 2/4");
     G_E = MidBin_ET(T, m, false);
     if (G_E.n_sys != 0) return G_E;
-
+#endif
     debug("ExactTestA 3/4");
-    G_E = MinBin_ET(T, m, true);
+    G_E = MinBin_ET_small(T, m, true);
     if (G_E.n_sys != 0) return G_E;
 
     debug("ExactTestA 4/4");
-    G_E = MinBin_ET(T, m, false);
+    G_E = MinBin_ET_small(T, m, false);
     return G_E;
 }
 

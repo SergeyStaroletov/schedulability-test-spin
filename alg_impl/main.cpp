@@ -2,8 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include <ecl/ecl.h>
+//#define ECL_FIXNUM_BITS 64
 
+#define DPP 0
+
+#include <gmp.h>
+#include <ecl/ecl.h>
 
 #include "alg.h"
 #include "test12.h"
