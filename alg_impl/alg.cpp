@@ -303,7 +303,7 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
 
    // fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;assign;system;group\n");
 
-    fprintf(csv, "%d;%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%f;\"%s\";\"%s\";\"%s\"\n",
+    fprintf(csv, "%d;%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%d;\"%s\";\"%s\";\"%s\"\n",
         T.id,
         T.n_tasks,
         m,
@@ -315,7 +315,7 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
         I ? "true" : "false",
         buf_algname,
         G.n_sys,
-        run_time,
+        (int)run_time,
         buf_grp_l,
         buf_sys,
         buf_grp
@@ -336,9 +336,8 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
 
 
 Group RunA(System T, int m, Alg A, bool UpDn) {
-
-    clock_t time1;
-    clock_t time2;
+    int time1;
+    int time2;
     Group G = newEmptyGroup();
     if (A == Alg_MaxBin_T) {
         time1 = clock();
@@ -346,7 +345,7 @@ Group RunA(System T, int m, Alg A, bool UpDn) {
         time2 = clock();
 
         #ifdef EXPERIMENT
-        SaveCVS(A, UpDn, true, T, m, G, (float)(time2 - time1) / CLOCKS_PER_SEC * 1000);
+        SaveCVS(A, UpDn, true, T, m, G, 1.0 * (time2 - time1) / CLOCKS_PER_SEC);
         #endif
 
         #ifndef EXPERIMENT
@@ -363,7 +362,7 @@ Group RunA(System T, int m, Alg A, bool UpDn) {
     time2 = clock();
 
     #ifdef EXPERIMENT
-    SaveCVS(A, UpDn, false, T, m, G, (float) (time2 - time1) / CLOCKS_PER_SEC * 1000);
+    SaveCVS(A, UpDn, false, T, m, G, 1.0 * (time2 - time1) / CLOCKS_PER_SEC);
     #endif
     return G;
 }
