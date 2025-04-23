@@ -13,6 +13,8 @@
 #define DEBUG 1
 #define EXPERIMENT 1
 //#define NEED_MID_BIN 1
+//#define NEED_MIN_BIN 1
+
 
 
 extern FILE *csv;
@@ -229,30 +231,38 @@ Group MinBin_ET(System T, int m, bool UpDn) {
 Group Assignment(System T, int m) {
     debug("----> Assignment for n = %d m = %d <----", pwr(T), m);
     Group G = newEmptyGroup();
-    debug("Assignment 1");
+    int as = 1;
+#ifdef NEED_MIN_BIN
+    debug("Assignment %d", as);
     G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET);
-    #ifndef EXPERIMENT
-    if (G.n_sys != 0) return G;
-    #endif
-#ifdef NEED_MID_BIN
-    debug("Assignment 2");
-    G = Choose_UpDn(T, m, Alg::Alg_MidBin_T);
-    #ifndef EXPERIMENT
-    if (G.n_sys != 0) return G;
-    #endif
-    debug("Assignment 3");
-    G = Choose_UpDn(T, m, Alg::Alg_MidBin_ET);
-    #ifndef EXPERIMENT
-    if (G.n_sys != 0) return G;
-    #endif
-#else
-    debug("Assignment 1'");
-    G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET_small);
+    as++;
     #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
     #endif
 #endif
-    debug("Assignment 4");
+
+#ifdef NEED_MID_BIN
+    debug("Assignment %d", as);
+    G = Choose_UpDn(T, m, Alg::Alg_MidBin_T);
+    as++;
+    #ifndef EXPERIMENT
+    if (G.n_sys != 0) return G;
+    #endif
+    debug("Assignment %d", as);
+    G = Choose_UpDn(T, m, Alg::Alg_MidBin_ET);
+    as++;
+    #ifndef EXPERIMENT
+    if (G.n_sys != 0) return G;
+    #endif
+#else
+    debug("Assignment %d", as);
+    G = Choose_UpDn(T, m, Alg::Alg_MinBin_ET_small);
+    as++;
+    #ifndef EXPERIMENT
+    if (G.n_sys != 0) return G;
+    #endif
+#endif
+    debug("Assignment %d", as);
     G = Choose_UpDn(T, m, Alg::Alg_MaxBin_T);
 
     if (G.n_sys != 0) return G;
