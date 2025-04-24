@@ -3,12 +3,13 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
+#include <sys/time.h>
+
 
 #include "alg.h"
 #include "structures.h"
 #include "test12.h"
 #include "modelcheck.h"
-#include "time.h"
 
 #define DEBUG 1
 #define EXPERIMENT 1
@@ -270,7 +271,7 @@ Group Assignment(System T, int m) {
 }
 
 
-void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_time) {
+void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, double run_time) {
     char buf_algname[50];
     if (A == Alg::Alg_MaxBin_T) strcpy(buf_algname, "MaxBin_T");
     else if (A == Alg::Alg_MidBin_T) strcpy(buf_algname, "MidBin_T");
@@ -336,16 +337,16 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, float run_tim
 
 
 Group RunA(System T, int m, Alg A, bool UpDn) {
-    int time1;
-    int time2;
+    struct timeval  tv1, tv2;
+
     Group G = newEmptyGroup();
     if (A == Alg_MaxBin_T) {
-        time1 = clock();
+        gettimeofday(&tv1, NULL);
         G = MaxBin_T(T, m, UpDn, true);
-        time2 = clock();
+        gettimeofday(&tv2, NULL);
 
         #ifdef EXPERIMENT
-        SaveCVS(A, UpDn, true, T, m, G, 1.0 * (time2 - time1) / CLOCKS_PER_SEC);
+        SaveCVS(A, UpDn, true, T, m, G, (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 + (double) (tv2.tv_sec - tv1.tv_sec));
         #endif
 
         #ifndef EXPERIMENT
@@ -353,16 +354,16 @@ Group RunA(System T, int m, Alg A, bool UpDn) {
         #endif
     }
 
-    time1 = clock();
+    gettimeofday(&tv1, NULL);
     if (A == Alg_MaxBin_T) G = MaxBin_T(T, m, UpDn, false);
     if (A == Alg_MidBin_T) G = MidBin_T(T, m, UpDn);
     if (A == Alg_MidBin_ET) G = MidBin_ET(T, m, UpDn);
     if (A == Alg_MinBin_ET) G = MinBin_ET(T, m, UpDn);
     if (A == Alg_MinBin_ET_small) G = MinBin_ET_small(T, m, UpDn);
-    time2 = clock();
+    gettimeofday(&tv2, NULL);
 
     #ifdef EXPERIMENT
-    SaveCVS(A, UpDn, false, T, m, G, 1.0 * (time2 - time1) / CLOCKS_PER_SEC);
+    SaveCVS(A, UpDn, false, T, m, G, (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 + (double) (tv2.tv_sec - tv1.tv_sec));
     #endif
     return G;
 }
