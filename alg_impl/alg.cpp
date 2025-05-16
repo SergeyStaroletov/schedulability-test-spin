@@ -66,11 +66,13 @@ System select(System T, int m_1, int k) {
     System T_2 = removeTasks(T, T_1);
     if (empty(T_2) && !safe)
         return newEmptySystem();
-
+    System T_3 = T_2;
     while (!safe && k > 0) {
         if (empty(T_2)) {
             debug("k -> %d\n", k);
-            T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k);
+            //T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k);
+            T_2 = removeLast(T_3);
+            T_3 = T_2;
             k = k - 1;
         }
         Task h = head(T_2);
@@ -78,7 +80,8 @@ System select(System T, int m_1, int k) {
         T_2 = removeTask(T_2, h);
         safe = tester(T_1, m_1);
     }
-    return T_1;
+    if (safe) return T_1;//fix
+    return newEmptySystem();
 }
 
 

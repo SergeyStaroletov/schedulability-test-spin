@@ -63,6 +63,7 @@ System removeTask(System T, Task t);
 System addTasks(System T, System T1);
 System addTask(System T, Task t);
 System removeFirst(System T, int n);
+System removeLast(System T);
 System replace(System T, int k, Task t);
 void printSystem(const char * label, System T);
 Group newEmptyGroup();

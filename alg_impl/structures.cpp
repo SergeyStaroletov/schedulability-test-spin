@@ -148,6 +148,12 @@ System removeFirst(System T, int n) {
     return newSystem;
 }
 
+System removeLast(System T) {
+    System newSystem = T;
+    if (newSystem.n_tasks != 0) newSystem.n_tasks--;
+    return newSystem;
+}
+
 System replace(System T, int k, Task t) {
     System newSystem = T;
     newSystem.tasks[k] = t;
