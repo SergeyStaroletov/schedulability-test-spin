@@ -67,10 +67,10 @@ System select(System T, int m_1, int k) {
     if (empty(T_2) && !safe)
         return newEmptySystem();
     System T_3 = T_2;
-    while (!safe && k > 0) {
+    while (!safe) {
         if (empty(T_2)) {
             debug("k -> %d\n", k);
-            //T_2 = removeFirst(removeTasks(T, T_1), m_1 + 2 - k);
+            if (k == 1 || pwr(T_3) == 1) return newEmptySystem();
             T_2 = removeLast(T_3);
             T_3 = T_2;
             k = k - 1;
@@ -152,8 +152,7 @@ Group MidBin_ET(System T, int m, bool UpDn) {
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
     Group G_E = newEmptyGroup();
-    int n_c = ceil(1.0 * pwr(T) / MAX);
-    int size_c = ceil(1.0 * m / n_c);
+    int size_c = floor(1.0 * m * MAX / pwr(T));
     while (m > 0) {
         if (pwr(T) < MAX) MAX = pwr(T);
         int m_1 = size_c;
@@ -266,10 +265,11 @@ Group Assignment(System T, int m) {
     if (G.n_sys != 0) return G;
     #endif
 #endif
-    debug("Assignment %d", as);
-    G = Choose_UpDn(T, m, Alg::Alg_MaxBin_T);
 
-    if (G.n_sys != 0) return G;
+    //debug("Assignment %d", as);
+    //G = Choose_UpDn(T, m, Alg::Alg_MaxBin_T);
+
+    //if (G.n_sys != 0) return G;
     return newEmptyGroup();
 }
 

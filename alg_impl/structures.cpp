@@ -239,7 +239,12 @@ void printGroupToBufLess(Group G, char *buf) {
     result += std::string("{");
     for (int i = 0; i < G.n_sys; i++) {
         result += std::string("[CPUs=") + std::to_string(G.processors[i]) + std::string(",");
-        result += std::string("NTask=") + std::to_string(G.systems[i].n_tasks) + std::string("]");
+        double u = 0;
+        for (int j = 0; j < G.systems[i].n_tasks; j++)
+            u += G.systems[i].tasks[j].u;
+        u /= G.processors[i];
+        result += std::string("NTask=") + std::to_string(G.systems[i].n_tasks) +
+                std::string(",U=")+ std::to_string(u) + std::string("]");
     }
     result += std::string("}");
 
