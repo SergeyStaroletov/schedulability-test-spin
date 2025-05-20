@@ -78,6 +78,13 @@ int main(int argc, char *argv[]) {
                     }
                     float uc = ecl_single_float(taskset->instance.slots[4]);
                     printf("\n[%d] Parsed taskset: I=%d M=%d N=%d U=%f UC=%f\n", id, count, m, n, u, uc);
+
+                    //we skip first 25
+                    if (m < 25) {
+                        result = ecl_cdr(result);
+                        continue;
+                    }
+
                     cl_object tasks = taskset->instance.slots[5];
 
                     System sys = newEmptySystem();
@@ -90,11 +97,11 @@ int main(int argc, char *argv[]) {
                         if (ecl_t_of(task) == t_structure) {
                             int c = ecl_fixnum(task->instance.slots[0]);
                             int d = ecl_fixnum(task->instance.slots[1]);
-                            int t = ecl_fixnum(task->instance.slots[2]);
-                            if (c == d) {
-                                d++;
-                                t++;
-                            }
+                            //int t = ecl_fixnum(task->instance.slots[2]);
+                           // if (c == d) {
+                           //     d++;
+                           //     t++;
+                           // }
 
                             if (i > 19) {
                                 n = 20;
@@ -123,11 +130,11 @@ int main(int argc, char *argv[]) {
                         if (ecl_t_of(task) == t_structure) {
                             int c = ecl_fixnum(task->instance.slots[0]);
                             int d = ecl_fixnum(task->instance.slots[1]);
-                            int t = ecl_fixnum(task->instance.slots[2]);
-                            if (c == d) {
-                                d++;
-                                t++;
-                            }
+                            //int t = ecl_fixnum(task->instance.slots[2]);
+                            //if (c == d) {
+                            //    d++;
+                            //    t++;
+                            //}
 
                             if (i > 40) {
                                 n = 40;

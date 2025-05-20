@@ -299,15 +299,14 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, double run_ti
     char buf_grp_l[1000];
 
     printGroupToBuf(G, buf_grp);
-    printGroupToBufLess(G, buf_grp_l);
-
+    int cpus = printGroupToBufLess(G, buf_grp_l);
 
     bool I = (ES_Test(T, m) == false);
     bool C = (G.n_sys != 0);
 
    // fprintf(csv, "id;n;m;u;uc;test1;test2;C?;I;alg;group_count;runtime;assign;system;group\n");
 
-    fprintf(csv, "%d;%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%d;\"%s\";\"%s\";\"%s\"\n",
+    fprintf(csv, "%d;%d;%d;%f;%f;%s;%s;%s;%s;%s;%d;%d;\"[AllCPUs=%d]%s\";\"%s\";\"%s\"\n",
         T.id,
         T.n_tasks,
         m,
@@ -320,6 +319,7 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, double run_ti
         buf_algname,
         G.n_sys,
         (int)run_time,
+        cpus,
         buf_grp_l,
         buf_sys,
         buf_grp

@@ -164,7 +164,7 @@ void printSystem(const char * label, System T) {
     printf("%s = {pwr: %d ", label, T.n_tasks);
     int n = T.n_tasks;
     for (int i = 0; i < n; i++) {
-        printf("  (c:%d d:%d u:%f)", T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
+        printf("  (n:%d c:%d d:%d u:%f)", T.tasks[i].p, T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
         if (i < n - 1) printf(", \n");
     }
     printf("}\n");
@@ -208,7 +208,7 @@ void printSystemToBuf(System T, char *buf) {
     result = std::string(buf);
 
     for (int i = 0; i < T.n_tasks; i++) {
-        sprintf(buf, "(task :C %d :D %d :T %d) ", T.tasks[i].c, T.tasks[i].d, T.tasks[i].d);
+        sprintf(buf, "(task :N %d :C %d :D %d :U %f) ", T.tasks[i].p, T.tasks[i].c, T.tasks[i].d, T.tasks[i].u);
         result += std::string(buf);
     }
 
@@ -222,7 +222,13 @@ void printGroupToBuf(Group G, char *buf) {
     result += std::string("{");
 
     for (int i = 0; i < G.n_sys; i++) {
-        result += std::string("[CPUs = ") + std::to_string(G.processors[i]) + std::string("],");
+
+        double u = 0;
+        for (int j = 0; j < G.systems[i].n_tasks; j++)
+            u += G.systems[i].tasks[j].u;
+        u /= G.processors[i];
+
+        result += std::string("[CPUs = ") + std::to_string(G.processors[i]) + ", u = " + std::to_string(u) + std::string("],");
         printSystemToBuf(G.systems[i], buf);
         result += std::string(buf) + std::string(" ");
     }
@@ -233,12 +239,14 @@ void printGroupToBuf(Group G, char *buf) {
 }
 
 
-void printGroupToBufLess(Group G, char *buf) {
+int printGroupToBufLess(Group G, char *buf) {
     std::string result;
+    int cpus = 0;
 
     result += std::string("{");
     for (int i = 0; i < G.n_sys; i++) {
         result += std::string("[CPUs=") + std::to_string(G.processors[i]) + std::string(",");
+        cpus += G.processors[i];
         double u = 0;
         for (int j = 0; j < G.systems[i].n_tasks; j++)
             u += G.systems[i].tasks[j].u;
@@ -249,5 +257,6 @@ void printGroupToBufLess(Group G, char *buf) {
     result += std::string("}");
 
     strcpy(buf, result.c_str());
+    return cpus;
 }
 

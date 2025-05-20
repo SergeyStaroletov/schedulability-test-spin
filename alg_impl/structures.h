@@ -6,7 +6,7 @@
 
 #define MC_MAX 5
 // Число задач, для которых можно _доказать_ планируемость формальными методами.
-// Сейчас N=6.
+// Сейчас N=5.
 
 
 struct Task {
@@ -73,6 +73,6 @@ void printGroup(Group g);
 
 void printSystemToBuf(System T, char *buf);
 void printGroupToBuf(Group G, char *buf);
-void printGroupToBufLess(Group G, char *buf);
+int printGroupToBufLess(Group G, char *buf);
 
 #endif // STRUCTURES_H
