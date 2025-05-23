@@ -55,17 +55,23 @@ int cmpByP(const void *a, const void *b) {
 
 System sort(System T, Sorting byWhat, bool UpDown) {
 
+    Task tasks[MAX_TASK];
+    memcpy(tasks, T.tasks, sizeof(tasks));
+
 
     if (byWhat == Sorting::byU && UpDown)
-        qsort(T.tasks, T.n_tasks, sizeof(Task), &cmpByUUp);
+        qsort(tasks, T.n_tasks, sizeof(Task), &cmpByUUp);
     else if (byWhat == Sorting::byU && !UpDown)
-        qsort(T.tasks, T.n_tasks, sizeof(Task), &cmpByUDown);
+        qsort(tasks, T.n_tasks, sizeof(Task), &cmpByUDown);
     else if (byWhat == Sorting::byD && UpDown)
         qsort(T.tasks, T.n_tasks, sizeof(Task), &cmpByDUp);
     else if (byWhat == Sorting::byD && !UpDown)
         qsort(T.tasks, T.n_tasks, sizeof(Task), &cmpByDDown);
     else if (byWhat == Sorting::byP)
         qsort(T.tasks, T.n_tasks, sizeof(Task), &cmpByP);
+
+    memcpy(T.tasks, tasks, sizeof(tasks));
+
 
     printSystem("inside", T);
 
