@@ -53,6 +53,12 @@ AlgReturn ES_Test(System T, int m) {
 
 
 bool tester(System T, int m) {
+
+    printSystem("before sort by P", T);
+    T = sort(T, Sorting::byP, true);
+    printSystem("after sort by P", T);
+
+
     if (m == pwr(T) - 1)
         return Test_1(T);
     else
@@ -184,9 +190,8 @@ Group MinBin_ET_small(System T, int m, bool UpDn) {
     int MAX = MC_MAX;
     if (T.n_tasks / MAX > m)
         return newEmptyGroup();
-    printSystem("before", T);
-        T = sort(T, Sorting::byU, UpDn);
-    printSystem("after", T);
+
+    T = sort(T, Sorting::byU, UpDn);
 
     Group G_E = newEmptyGroup();
     while (m > 0) {
