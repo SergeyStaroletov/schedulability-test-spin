@@ -26,13 +26,17 @@ Task head(System T) {
 int cmpByUUp(const void *a, const void *b) {
     Task *task1 = (Task *)a;
     Task *task2 = (Task *)b;
-    return task2->u - task1->u;
+    if (task2->u - task1->u > 0) return 1;
+    if (task2->u - task1->u < 0) return -1;
+    return 0;
 }
 
 int cmpByUDown(const void *a, const void *b) {
     Task *task1 = (Task *)a;
     Task *task2 = (Task *)b;
-    return task1->u - task2->u;
+    if (task1->u - task2->u > 0) return 1;
+    if (task1->u - task2->u < 0) return -1;
+    return 0;
 }
 
 int cmpByDUp(const void *a, const void *b) {
