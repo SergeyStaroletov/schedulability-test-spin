@@ -67,6 +67,8 @@ System sort(System T, Sorting byWhat, bool UpDown) {
     else if (byWhat == Sorting::byP)
         qsort(T.tasks, T.n_tasks, sizeof(Task), &cmpByP);
 
+    printSystem("inside", T);
+
     return T;
 }
 
