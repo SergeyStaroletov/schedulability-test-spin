@@ -185,7 +185,7 @@ Group MinBin_ET_small(System T, int m, bool UpDn) {
     if (T.n_tasks / MAX > m)
         return newEmptyGroup();
     printSystem("before", T);
-    T = sort(T, Sorting::byU, UpDn);
+        T = sort(T, Sorting::byU, UpDn);
     printSystem("after", T);
 
     Group G_E = newEmptyGroup();
