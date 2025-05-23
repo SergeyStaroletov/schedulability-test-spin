@@ -165,6 +165,13 @@ System replace(System T, int k, Task t) {
     return newSystem;
 }
 
+float USystem(System T) {
+    double u = 0;
+    for (int j = 0; j < T.n_tasks; j++)
+        u += T.tasks[j].u;
+    return u;
+}
+
 void printSystem(const char * label, System T) {
     printf("%s = {pwr: %d ", label, T.n_tasks);
     int n = T.n_tasks;

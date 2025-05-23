@@ -69,6 +69,7 @@ void printSystem(const char * label, System T);
 Group newEmptyGroup();
 Group addSystemToGroup(System T, Group g, int cpus);
 Group addGroupToGroup(Group g1, Group g2);
+float USystem(System T);
 void printGroup(Group g);
 
 void printSystemToBuf(System T, char *buf);

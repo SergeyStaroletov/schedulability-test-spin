@@ -54,10 +54,7 @@ AlgReturn ES_Test(System T, int m) {
 
 bool tester(System T, int m) {
 
-    printSystem("before sort by P", T);
     T = sort(T, Sorting::byP, true);
-    printSystem("after sort by P", T);
-
 
     if (m == pwr(T) - 1)
         return Test_1(T);
@@ -68,7 +65,12 @@ bool tester(System T, int m) {
 System select(System T, int m_1, int k) {
     debug("select");
     System T_1 = first(T, k);
-    bool safe = tester(T_1, m_1);
+
+    bool safe = false;
+    if (USystem(T_1) / m_1 < 1) {
+        safe = tester(T_1, m_1);
+    }
+
     System T_2 = removeTasks(T, T_1);
     if (empty(T_2) && !safe)
         return newEmptySystem();
@@ -84,9 +86,11 @@ System select(System T, int m_1, int k) {
         Task h = head(T_2);
         T_1 = replace(T_1, k, h);
         T_2 = removeTask(T_2, h);
-        safe = tester(T_1, m_1);
+        if (USystem(T_1) / m_1 < 1) {
+            safe = tester(T_1, m_1);
+        }
     }
-    if (safe) return T_1;//fix
+    if (safe) return T_1; //fix
     return newEmptySystem();
 }
 
