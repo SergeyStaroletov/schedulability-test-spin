@@ -39,7 +39,7 @@ void debug(char *s,...) {
 
 
 bool Test_1(System T) {
-    sort(T, Sorting::byP, true);
+    sort(T, Sorting::byP, UpDown::Up);
     return do_test1(T) == AlgReturn::schedulable;
 }
 
@@ -54,7 +54,7 @@ AlgReturn ES_Test(System T, int m) {
 
 bool tester(System T, int m) {
 
-    T = sort(T, Sorting::byP, true);
+    T = sort(T, Sorting::byP, UpDown::Up);
 
     if (m == pwr(T) - 1)
         return Test_1(T);
@@ -91,13 +91,17 @@ System select(System T, int m_1, int k) {
         }
     }
     if (safe) return T_1; //fix
-    return newEmptySystem();
+    else
+        if (pwr(T_1) - 1 > m_1) {
+            T_1 = select(T, m_1, pwr(T_1) - 1);
+            return T_1;
+        } else return newEmptySystem();
 }
 
 
 
 
-Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
+Group MaxBin_T(System T, int m, UpDown UpDn, bool Dec) {
     debug("----> MaxBin_T for n = %d m = %d UpDn = %d Dec = %d <----", pwr(T), m, UpDn, Dec);
     T = sort(T, Sorting::byU, UpDn);
     Group G_A = newEmptyGroup();
@@ -128,7 +132,7 @@ Group MaxBin_T(System T, int m, bool UpDn, bool Dec) {
 }
 
 
-Group MidBin_T(System T, int m, bool UpDn) {
+Group MidBin_T(System T, int m, UpDown UpDn) {
     debug("----> MidBin_T for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
     T = sort(T, Sorting::byU, UpDn);
     Group G_A = newEmptyGroup();
@@ -157,7 +161,7 @@ Group MidBin_T(System T, int m, bool UpDn) {
 }
 
 
-Group MidBin_ET(System T, int m, bool UpDn) {
+Group MidBin_ET(System T, int m, UpDown UpDn) {
     debug("----> MidBin_ET for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
@@ -189,7 +193,7 @@ Group MidBin_ET(System T, int m, bool UpDn) {
     return G_E;
 }
 
-Group MinBin_ET_small(System T, int m, bool UpDn) {
+Group MinBin_ET_small(System T, int m, UpDown UpDn) {
     debug("----> MinBin_ET_small for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
     int MAX = MC_MAX;
     if (T.n_tasks / MAX > m)
@@ -219,7 +223,7 @@ Group MinBin_ET_small(System T, int m, bool UpDn) {
 }
 
 
-Group MinBin_ET(System T, int m, bool UpDn) {
+Group MinBin_ET(System T, int m, UpDown UpDn) {
     debug("----> MinBin_ET for n = %d m = %d UpDn = %d <----", pwr(T), m, UpDn);
     int MAX = MC_MAX;
     T = sort(T, Sorting::byU, UpDn);
@@ -286,26 +290,29 @@ Group Assignment(System T, int m) {
 }
 
 
-void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, double run_time) {
+void SaveCVS(Alg A, UpDown UpDn, bool Dec, System T, int m, Group G, double run_time) {
     char buf_algname[50];
     if (A == Alg::Alg_MaxBin_T) strcpy(buf_algname, "MaxBin_T");
     else if (A == Alg::Alg_MidBin_T) strcpy(buf_algname, "MidBin_T");
     else if (A == Alg::Alg_MidBin_ET) strcpy(buf_algname, "MidBin_ET");
     else if (A == Alg::Alg_MinBin_ET) strcpy(buf_algname, "MinBin_ET");
-    else if (A == Alg::Alg_MinBin_ET_small) strcpy(buf_algname, "MinBin_ET_small");
+    else if (A == Alg::Alg_MinBin_ET_small) strcpy(buf_algname, "MinBin_ET(small)");
 
 
     if (A == Alg::Alg_MaxBin_T) {
         if (Dec)
-            strcat(buf_algname, "Dec2");
+            strcat(buf_algname, "Dec+");
         else
             strcat(buf_algname, "Dec-");
     }
 
-    if (UpDn)
+    if (UpDn == UpDown::Up)
         strcat(buf_algname, "Up");
     else
-        strcat(buf_algname, "Down");
+        if (UpDn == UpDown::Down)
+            strcat(buf_algname, "Down");
+        else
+            strcat(buf_algname, "None");
 
     char buf_grp[2000];
     char buf_grp_l[1000];
@@ -351,7 +358,7 @@ void SaveCVS(Alg A, bool UpDn, bool Dec, System T, int m, Group G, double run_ti
 
 
 
-Group RunA(System T, int m, Alg A, bool UpDn) {
+Group RunA(System T, int m, Alg A, UpDown UpDn) {
     struct timeval  tv1, tv2;
 
     Group G = newEmptyGroup();
@@ -386,11 +393,15 @@ Group RunA(System T, int m, Alg A, bool UpDn) {
 Group Choose_UpDn(System T, int m, Alg A) {
     debug("----> Choose_UpDn for n = %d m = %d <----", pwr(T), m);
     Group G = newEmptyGroup();
-    G = RunA(T, m, A, true);
+    G = RunA(T, m, A, UpDown::Up);
     #ifndef EXPERIMENT
     if (G.n_sys != 0) return G;
     #endif
-    G = RunA(T, m, A, false);
+    G = RunA(T, m, A, UpDown::Down);
+    #ifndef EXPERIMENT
+    if (G.n_sys != 0) return G;
+    #endif
+    G = RunA(T, m, A, UpDown::None);
     return G;
 }
 
@@ -406,12 +417,16 @@ Group ExactTestA(System T, int m) {
     G_E = MidBin_ET(T, m, false);
     if (G_E.n_sys != 0) return G_E;
 #endif
-    debug("ExactTestA 3/4");
-    G_E = MinBin_ET_small(T, m, true);
+    debug("ExactTestA Up");
+    G_E = MinBin_ET_small(T, m, UpDown::Up);
     if (G_E.n_sys != 0) return G_E;
 
-    debug("ExactTestA 4/4");
-    G_E = MinBin_ET_small(T, m, false);
+    debug("ExactTestA Dn");
+    G_E = MinBin_ET_small(T, m, UpDown::Down);
+    if (G_E.n_sys != 0) return G_E;
+
+    debug("ExactTestA None");
+    G_E = MinBin_ET_small(T, m, UpDown::None);
     return G_E;
 }
 
@@ -420,7 +435,7 @@ Group ExactTestA(System T, int m) {
 bool ModelChecking(System T, int m) {
     char buf_v[50];
 
-    sort(T, Sorting::byP, true);
+    sort(T, Sorting::byP, UpDown::Up);
     int runtime = 0;
     if (compile_spin(T, m)) {
         debug("running verification...");
@@ -463,7 +478,7 @@ void tests() {
 
     printSystem("T1 + T2 = ", addTasks(T1, T2));
     printSystem("T1 - T3 = ", removeTasks(T1, T3));
-    T4 = sort(T4, Sorting::byU, true);
+    T4 = sort(T4, Sorting::byU, UpDown::Up);
     printSystem("Sort(T4) = ", T4);
     printSystem("Remove first 2 of T1 = ", removeFirst(T1, 2));
 }

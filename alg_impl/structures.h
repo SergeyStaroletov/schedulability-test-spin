@@ -38,8 +38,15 @@ enum AlgReturn {
 enum Sorting {
     byU,
     byD,
-    byP
+    byP,
 };
+
+enum UpDown {
+    Up,
+    Down,
+    None,
+};
+
 
 enum Alg {
     Alg_MaxBin_T,
@@ -54,7 +61,7 @@ System newEmptySystem();
 bool empty(System T);
 Task head(System T);
 int pwr(System T);
-System sort(System T, Sorting byWhat, bool UpDown);
+System sort(System T, Sorting byWhat, UpDown UpDown);
 int pwr(System T);
 bool theSameTask(Task t1, Task t2);
 System first(System T, int n);

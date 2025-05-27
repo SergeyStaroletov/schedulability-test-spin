@@ -57,15 +57,15 @@ int cmpByP(const void *a, const void *b) {
     return task1->p - task2->p;
 }
 
-System sort(System T, Sorting byWhat, bool UpDown) {
+System sort(System T, Sorting byWhat, UpDown UpDn) {
 
-    if (byWhat == Sorting::byU && UpDown)
+    if (byWhat == Sorting::byU && UpDn == UpDown::Up)
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByUUp);
-    else if (byWhat == Sorting::byU && !UpDown)
+    else if (byWhat == Sorting::byU && UpDn == UpDown::Down)
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByUDown);
-    else if (byWhat == Sorting::byD && UpDown)
+    else if (byWhat == Sorting::byD && UpDn == UpDown::Up)
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByDUp);
-    else if (byWhat == Sorting::byD && !UpDown)
+    else if (byWhat == Sorting::byD && UpDn == UpDown::Down)
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByDDown);
     else if (byWhat == Sorting::byP)
         qsort(&T.tasks, T.n_tasks, sizeof(Task), &cmpByP);

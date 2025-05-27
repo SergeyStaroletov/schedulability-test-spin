@@ -80,10 +80,10 @@ int main(int argc, char *argv[]) {
                     printf("\n[%d] Parsed taskset: I=%d M=%d N=%d U=%f UC=%f\n", id, count, m, n, u, uc);
 
                     //we skip first 25
-                    if (m < 25) {
-                        result = ecl_cdr(result);
-                        continue;
-                    }
+                    //if (m < 25) {
+                    //    result = ecl_cdr(result);
+                    //    continue;
+                    //}
 
                     cl_object tasks = taskset->instance.slots[5];
 
